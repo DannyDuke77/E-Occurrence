@@ -1,0 +1,25 @@
+{% extends "core/base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+    {% if messages %}
+        <div class="space-y-2">
+            {% for message in messages %}
+            <div
+                class="p-2 rounded 
+                    {% if message.tags == 'error' %}bg-red-200 text-red-800
+                    {% elif message.tags == 'success' %}bg-green-200 text-green-800
+                    {% else %}bg-gray-200 text-gray-800{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="mx-auto p-8 bg-white">
+        <h1 class="text-3xl font-bold text-center text-indigo-800 mb-6">Welcome to the E-Occurrence System</h1>
+        <p class="text-gray-700 text-lg text-center mb-4">Your one-stop solution for managing court occurrences and updates.</p>
+        <p class="text-gray-600 text-md text-center mb-8">Please use the sidebar to navigate through the system.</p>
+    </div>
+{% endblock %}

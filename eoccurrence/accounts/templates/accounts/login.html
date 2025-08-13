@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <title>{% block title %}Log In{% endblock %} | E-Occurrence</title>
+    <style type="text/tailwindcss">
+        body {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                 Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 
+                 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+        }
+      @theme {
+        --color-clifford: #da373d;
+      }
+    </style>
+</head>
+<body>
+    <div class="max-w-md mx-auto p-8 my-12 bg-white shadow-lg rounded-2xl">
+        <h1 class="text-3xl font-bold text-center text-indigo-800 mb-6">E-Occurrence System</h1>
+
+        <form method="post" action="." class="space-y-6">
+            {% csrf_token %}
+
+            {% if form.errors or form.non_field_errors %}
+                <div class="bg-red-100 text-red-600 text-sm p-4 rounded">
+                    {% for field in form %}
+                        {% for error in field.errors %}<p>{{ error }}</p>{% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+                </div>
+            {% endif %}
+
+            <div>
+                <label for="{{ form.username.id_for_label }}" class="block mb-2 text-sm font-medium text-gray-700">Username or ID number</label>
+                {{ form.username }}
+            </div>
+
+            <div>
+                <label for="password-input" class="block mb-2 text-sm font-medium text-gray-700">Password</label>
+                <div class="flex items-center">
+                    {{ form.password }}
+                    <button type="button" onclick="togglePassword()" class="ml-2 text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <p class="text-sm text-red-600 mb-4">
+                Warning: Do not share your login credentials with anyone. Your account is personal and for authorized use only. Unauthorized access may result in account suspension or legal action.
+            </p>
+
+            <div class="text-sm text-gray-600">
+                By logging in, you agree to our <a href="{% url 'core:terms_of_use' %}" class="text-teal-500 hover:underline">Terms of Use</a> and <a href="#" class="text-teal-500 hover:underline">Privacy Policy</a>.
+            </div>
+
+            <button class="w-full py-3 px-6 bg-indigo-600 hover:bg-indigo-800 text-white font-semibold rounded-lg shadow-md transition duration-300">
+                Log In
+            </button>
+        </form>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const input = document.getElementById('password-input');
+            const button = event.target;
+
+            if (input.type === 'password') {
+                input.type = 'text';
+            } else {
+                input.type = 'password';
+            }
+        }
+    </script>
+</body>
+</html>

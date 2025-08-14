@@ -1,0 +1,42 @@
+{% extends "core/base.html" %}
+
+{% block title %}Case Entry{% endblock %}
+
+{% load static %}
+{% block content %}
+<div class="max-w-xl mx-auto bg-white p-6 shadow-lg rounded-lg">
+    <h2 class="text-2xl font-bold text-center mb-4 text-indigo-800">New Case for {{ complainant.first_name }} {{ complainant.last_name }}</h2>
+
+    <div class="mb-4 p-3 bg-gray-200 rounded">
+        <p class="mb-2"><strong>Complainant:</strong><span class="font-bold text-indigo-800"> {{ complainant.first_name }} {% if case.complainant.last_name %}{{ case.complainant.last_name }}{% endif %} </span></p>
+        <p class="mb-2"><strong>Phone:</strong><span class="font-bold text-indigo-800"> {{ complainant.phone_number }} </span></p>
+        <p class="mb-2"><strong>ID:</strong><span class="font-bold text-indigo-800"> {{ complainant.id_number }} </span></p>
+    </div>
+
+    <form method="post" class="space-y-4">
+        {% if form.errors %}
+            <div class="bg-red-100 text-red-600 text-sm p-4 rounded mb-4">
+                {{ form.errors }}
+            </div>
+        {% endif %}
+
+        {% csrf_token %}
+
+        {% for field in form.visible_fields %}
+            <div class="mb-5">
+                <label class="block mb-1 text-sm text-gray-600">
+                    {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                </label>
+                {{ field }}
+                {% if field.help_text %}
+                    <small class="text-gray-500 italic block mt-1">{{ field.help_text }}</small>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+            Save Case
+        </button>
+    </form>
+</div>
+{% endblock %}

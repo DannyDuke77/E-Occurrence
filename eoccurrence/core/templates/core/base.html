@@ -17,7 +17,7 @@
       }
     </style>
   </head>
-  <body>
+  <body class="bg-gray-100">
     <div class="flex">
       <aside id="sidebar" class="w-64 bg-gray-800 text-white h-screen fixed flex flex-col overflow-hidden p-4 z-50 border-r-4 border-gray-600">
         <div class="flex-shrink-0">
@@ -30,15 +30,16 @@
               </svg>
               <p class="">e-Occurrence</p></a>
           </div>
-
+        <!-- Navigation links -->
           <nav class="space-y-2 mt-4">
             <!-- Links visible to everyone -->
-            <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">Search</a>
+            <a href="{% url 'cases:search_cases' %}" class="block px-4 py-2 rounded hover:bg-gray-700">Search</a>
+            <a href="{% url 'cases:view_cases' %}" class="block px-4 py-2 rounded hover:bg-gray-700">View Cases</a>
 
             <!-- Police links (admins also see these) -->
             {% if user.is_authenticated and user.profile.user_role == 'police' or user.profile.user_role == 'admin' %}
                 <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">Dashboard</a>
-                <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">New Entry</a>
+                <a href="{% url 'cases:complainant_entry' %}" class="block px-4 py-2 rounded hover:bg-gray-700">New Entry</a>
                 <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">Bail Decisions</a>
             {% endif %}
 
@@ -80,7 +81,7 @@
       </aside>
 
       <div class="flex-1 ml-64 flex flex-col min-h-screen">
-        <main class="flex-1 overflow-y-auto p-4">
+        <main class="flex-1 overflow-y-auto p-4 mt-6">
         {% block content %}
         
         {% endblock %}

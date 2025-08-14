@@ -1,0 +1,36 @@
+{% extends "core/base.html" %}
+
+{% block title %}Complainant Entry{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto p-8 bg-white rounded-2xl shadow-lg">
+    <h2 class="text-3xl font-bold text-center text-indigo-800 mb-6">New Complainant</h2>
+
+    <form method="post" class="">
+        {% if form.errors %}
+            <div class="bg-red-100 text-red-600 text-sm p-4 rounded mb-4">
+                {{ form.errors }}
+            </div>
+        {% endif %}
+
+        {% csrf_token %}
+
+        {% for field in form.visible_fields %}
+            <div class="mb-5">
+                <label class="block mb-1 text-sm text-gray-600">
+                    {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                </label>
+                {{ field }}
+                {% if field.help_text %}
+                    <small class="text-gray-500 italic block mt-1">{{ field.help_text }}</small>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+
+        <button type="submit" class="w-full py-3 px-6 bg-indigo-600 hover:bg-indigo-800 text-white font-semibold rounded-lg shadow-md transition duration-300">
+            Save Complainant
+        </button>
+    </form>
+</div>
+{% endblock %}

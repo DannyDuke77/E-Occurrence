@@ -19,11 +19,9 @@ class loginForm(AuthenticationForm):
         'class': INPUT_CLASSES,
     }))
     error_messages = {
-        'invalid_login': _(
-            "Invalid username or ID number, or password. Please try again."
-        ),
-        'inactive': _("This account is inactive."),
+        'invalid_login': _("Invalid username or ID number, or password. Please try again. If all else fails, contact your administrator."),
     }
+
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
     id_number = forms.CharField(required=True, max_length=20)
@@ -40,15 +38,15 @@ class CustomUserCreationForm(UserCreationForm):
 
         widgets = {
             'username': forms.TextInput(attrs={
-                'placeholder': 'Your username',
+                'placeholder': 'Username',
                 'class': INPUT_CLASSES
             }),
             'first_name': forms.TextInput(attrs={
-                'placeholder': 'Your first name',
+                'placeholder': 'First name',
                 'class': INPUT_CLASSES
             }),
             'last_name': forms.TextInput(attrs={
-                'placeholder': 'Your last name',
+                'placeholder': 'Last name',
                 'class': INPUT_CLASSES
             }),
         }
@@ -63,24 +61,24 @@ class CustomUserCreationForm(UserCreationForm):
         super().__init__(*args, **kwargs)
         
         self.fields['password1'].widget.attrs.update({
-            'placeholder': 'Your password',
+            'placeholder': 'Password',
             'class': INPUT_CLASSES,
             'id': 'password1'
         })
 
         self.fields['password2'].widget.attrs.update({
-            'placeholder': 'Repeat your password',
+            'placeholder': 'Repeat Password',
             'class': INPUT_CLASSES,
             'id': 'password2'
         })
 
         self.fields['id_number'].widget.attrs.update({
-            'placeholder': 'Your ID number',
+            'placeholder': 'ID number',
             'class': INPUT_CLASSES
         })
 
         self.fields['phone_number'].widget.attrs.update({
-            'placeholder': 'Your phone number',
+            'placeholder': 'Phone number',
             'class': INPUT_CLASSES
         }),
 
@@ -90,17 +88,17 @@ class CustomUserCreationForm(UserCreationForm):
         })
 
         self.fields['address'].widget.attrs.update({
-            'placeholder': 'Your address',
+            'placeholder': 'Address',
             'rows': '4',
             'cols': '40',
             'style': 'resize: none',
             'class': INPUT_CLASSES
         })
         self.fields['user_role'].widget.attrs.update({
-            'class': INPUT_CLASSES, 'disabled': 'disabled'
+            'class': INPUT_CLASSES
         })
         self.fields['department'].widget.attrs.update({
-            'placeholder': 'Your department',
+            'placeholder': 'Department',
             'class': INPUT_CLASSES
         })
         self.fields['date_of_birth'].widget.attrs.update({
@@ -143,7 +141,12 @@ class CustomUserCreationForm(UserCreationForm):
             user.save()
             Userprofile.objects.create(
                 user=user,
-                phone=self.cleaned_data.get('phone'),
-                address=self.cleaned_data.get('address')
+                id_number=self.cleaned_data.get('id_number'),
+                user_role=self.cleaned_data.get('user_role'),
+                phone_number=self.cleaned_data.get('phone_number'),
+                address=self.cleaned_data.get('address'),
+                department=self.cleaned_data.get('department'),
+                date_of_birth=self.cleaned_data.get('date_of_birth'),
+                profile_picture=self.cleaned_data.get('profile_picture')
             )
         return user

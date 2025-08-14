@@ -7,9 +7,9 @@
         <div class="space-y-2">
             {% for message in messages %}
             <div
-                class="p-2 rounded 
+                class="p-2 text-sm font-semibold rounded 
                     {% if message.tags == 'error' %}bg-red-200 text-red-800
-                    {% elif message.tags == 'success' %}bg-green-200 text-green-800
+                    {% elif message.tags == 'success' %}bg-green-200 text-green-900
                     {% else %}bg-gray-200 text-gray-800{% endif %}">
                 {{ message }}
             </div>

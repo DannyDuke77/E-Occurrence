@@ -23,6 +23,7 @@ class loginForm(AuthenticationForm):
     }
 
 class CustomUserCreationForm(UserCreationForm):
+    username = forms.CharField(max_length=30, required=True)
     email = forms.EmailField(required=True)
     id_number = forms.CharField(required=True, max_length=20)
     phone_number = forms.CharField(required=True, max_length=10)
@@ -32,24 +33,22 @@ class CustomUserCreationForm(UserCreationForm):
     date_of_birth = forms.DateField(required=True, widget=forms.DateInput(attrs={'type': 'date'}))
     profile_picture = forms.ImageField(required=False)
 
+    username = forms.CharField(required=True, widget=forms.TextInput(attrs={
+        'placeholder': 'Username',
+        'class': INPUT_CLASSES,
+    }))
+    first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={
+        'placeholder': 'First name',
+        'class': INPUT_CLASSES,
+    }))
+    last_name = forms.CharField(required=True, widget=forms.TextInput(attrs={
+        'placeholder': 'Last name',
+        'class': INPUT_CLASSES,
+    }))
+
     class Meta:
         model = User
         fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2', 'id_number', 'phone_number', 'address', 'user_role', 'department', 'date_of_birth', 'profile_picture']
-
-        widgets = {
-            'username': forms.TextInput(attrs={
-                'placeholder': 'Username',
-                'class': INPUT_CLASSES
-            }),
-            'first_name': forms.TextInput(attrs={
-                'placeholder': 'First name',
-                'class': INPUT_CLASSES
-            }),
-            'last_name': forms.TextInput(attrs={
-                'placeholder': 'Last name',
-                'class': INPUT_CLASSES
-            }),
-        }
 
         help_texts = {
         'username': 'Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.',

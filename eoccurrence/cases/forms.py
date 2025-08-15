@@ -56,7 +56,7 @@ class CaseForm(forms.ModelForm):
     class Meta:
         model = Case
         exclude = ['case_number', 'recorded_by', 'date_reported', 'complainant', 'suspects', 'witnesses']
-        fields = ['case_type', 'title', 'location', 'description', 'status', 'incident_date']
+        fields = ['case_type', 'title', 'location', 'description', 'status', 'incident_date', 'court_date']
         widgets = {
             'case_type': forms.Select(attrs={
                 'class': INPUT_CLASSES
@@ -80,6 +80,10 @@ class CaseForm(forms.ModelForm):
                 'class': INPUT_CLASSES
             }),
             'incident_date': forms.DateInput(attrs={
+                'type': 'date', 
+                'class': INPUT_CLASSES,
+            }),
+            'court_date': forms.DateInput(attrs={
                 'type': 'date', 
                 'class': INPUT_CLASSES,
             }),

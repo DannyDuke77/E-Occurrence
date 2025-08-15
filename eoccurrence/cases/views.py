@@ -18,7 +18,7 @@ def complainant_entry(request):
         form = ComplainantForm(request.POST)
         if form.is_valid():
             complainant = form.save()
-            return redirect('cases:case_entry', complainant_id=complainant.id)
+            return redirect('cases:case_entry', uuid=complainant.uuid)
     else:
         form = ComplainantForm()
 
@@ -26,8 +26,8 @@ def complainant_entry(request):
 
 
 @login_required
-def case_entry(request, complainant_id):
-    complainant = get_object_or_404(Complainant, id=complainant_id)
+def case_entry(request, uuid):
+    complainant = get_object_or_404(Complainant, uuid=uuid)
     if request.method == 'POST':
         form = CaseForm(request.POST)
         if form.is_valid():
@@ -58,8 +58,8 @@ def view_cases(request):
         })
 
 @login_required
-def case_details(request, case_number):
-    case = get_object_or_404(Case, case_number=case_number)
+def case_details(request, uuid):
+    case = get_object_or_404(Case, uuid=uuid)
 
     wittnesses = case.witnesses.all()
     suspects = case.suspects.all()
@@ -86,8 +86,8 @@ def search_cases(request):
     }) 
 
 @login_required
-def witness_entry(request, case_number):
-    case = get_object_or_404(Case, case_number=case_number)
+def witness_entry(request, uuid):
+    case = get_object_or_404(Case, uuid=uuid)
 
     if request.method == 'POST':
         form = WitnessForm(request.POST)
@@ -99,7 +99,7 @@ def witness_entry(request, case_number):
 
             messages.success(request, "Witness statement added successfully.")
 
-            return redirect('cases:case_details', case_number=case.case_number)
+            return redirect('cases:case_details', uuid=case.uuid)
     else:
         form = WitnessForm()
 

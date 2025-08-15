@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+import uuid
 
 # Create your models here.
 from django.db import models
@@ -59,6 +60,8 @@ class Case(models.Model):
     ('OTHER', 'Other'),
 ]
 
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+
     case_number = models.CharField(max_length=50, unique=True)
     case_type = models.CharField(
         max_length=30, choices=CASE_TYPE_CHOICES, default='OTHER',
@@ -112,6 +115,8 @@ class Case(models.Model):
 
 class Complainant(models.Model):
     # Basic personal details
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100, blank=True, null=True)
     id_number = models.CharField(max_length=20, blank=True, null=True, unique=True)  # National ID or passport

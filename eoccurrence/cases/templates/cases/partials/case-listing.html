@@ -23,7 +23,7 @@
         <ul class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for case in cases %}
                 <li class="bg-gray-50 rounded-xl shadow-sm hover:shadow-lg transition duration-200 overflow-hidden border border-gray-200">
-                    <a class="block p-5 space-y-3 h-full" href="{% url 'cases:case_details' case.case_number %}">
+                    <a class="block p-5 space-y-3 h-full" href="{% url 'cases:case_details' case.uuid %}">
                         <!-- Case Number & Status -->
                         <div class="flex justify-between items-center">
                             <h3 class="text-lg font-semibold text-gray-800">

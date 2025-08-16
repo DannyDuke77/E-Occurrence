@@ -1,8 +1,28 @@
+<div class="max-w-3xl mx-auto px-4 py-6 bg-white shadow-lg rounded-2xl mb-8">        
+    <form method="GET" action="{% url 'cases:search_cases' %}" class="mb-6">
+        <div class="flex space-x-4">
+            <input type="text" name="query" placeholder="Search by case number, title, or location"
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Search</button>
+        </div>
+    </form>
+</div>
 <div class="w-full mx-auto bg-white p-6 shadow-lg rounded-xl">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex justify-between items-center mb-4">
         <h2 class="text-2xl font-bold text-gray-800">Cases</h2>
-        <span class="text-sm text-gray-500">Total: {{ cases|length }}</span>
+        <span class="text-sm text-gray-500">Total: {{ total_results }}</span>
     </div>
+
+    {% if total_results > 20 %}
+        <div class="mb-6 p-3 py-2 px-4 flex items-center space-x-2 rounded-lg bg-yellow-100 text-yellow-800 text-sm font-medium border border-yellow-300">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+            </svg>
+            <span>
+                Showing only <b>20</b> of <b>{{ total_results }}</b> cases. Please refine your search to see more specific cases..
+            </span>
+        </div>
+    {% endif %}
 
     {% if messages %}
         <div class="space-y-2 mb-6">
@@ -49,14 +69,12 @@
                             <p><strong>Date:</strong> {{ case.incident_date|date:"M j, Y" }}</p>
                         </div>
 
-                        {% if user.is_authenticated %}
                             <!-- View Details Link -->
                             <div class="pt-2">
                                 <span class="inline-block text-blue-600 text-sm font-semibold hover:underline">
                                     View Details →
                                 </span>
                             </div>
-                        {% endif %}
                     </a>
                 </li>
             {% endfor %}

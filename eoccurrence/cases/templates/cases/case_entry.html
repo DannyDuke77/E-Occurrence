@@ -5,10 +5,10 @@
 {% load static %}
 {% block content %}
 <div class="max-w-xl mx-auto bg-white p-6 shadow-lg rounded-lg">
-    <h2 class="text-2xl font-bold text-center mb-4 text-indigo-800">New Case for {{ complainant.first_name }} {{ complainant.last_name }}</h2>
+    <h2 class="text-2xl font-bold text-center mb-4 text-indigo-800">{{ form_title }}</h2>
 
     <div class="mb-4 p-3 bg-gray-200 rounded">
-        <p class="mb-2"><strong>Complainant:</strong><span class="font-bold text-indigo-800"> {{ complainant.first_name }} {% if case.complainant.last_name %}{{ case.complainant.last_name }}{% endif %} </span></p>
+        <p class="mb-2"><strong>Complainant:</strong><span class="font-bold text-indigo-800"> {{ complainant.first_name }} {% if complainant.last_name %}{{ complainant.last_name }}{% endif %} </span></p>
         <p class="mb-2"><strong>Phone:</strong><span class="font-bold text-indigo-800"> {{ complainant.phone_number }} </span></p>
         <p class="mb-2"><strong>ID:</strong><span class="font-bold text-indigo-800"> {{ complainant.id_number }} </span></p>
     </div>

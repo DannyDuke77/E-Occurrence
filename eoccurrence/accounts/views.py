@@ -4,6 +4,10 @@ from django.shortcuts import redirect
 from .forms import loginForm
 
 from django.contrib import messages
+from django.shortcuts import get_object_or_404
+from django.contrib.auth.decorators import login_required
+
+from .models import Userprofile
 
 
 from .forms import CustomUserCreationForm
@@ -46,3 +50,16 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('/')
+
+@login_required
+def profile_view(request, uuid):
+    if not request.user.is_authenticated:
+        messages.error(request, "You need to be logged in to view this profile.")
+        return redirect('login')
+
+    # Get the profile or return 404 if not found
+    profile = get_object_or_404(Userprofile, uuid=uuid)
+
+    return render(request, 'accounts/profile_view.html', {
+        'profile': profile,
+    })

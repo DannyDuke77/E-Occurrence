@@ -1,5 +1,7 @@
 from django.db import models
 
+import uuid
+
 from django.contrib.auth.models import User
 
 # Create your models here.
@@ -11,6 +13,7 @@ class Userprofile(models.Model):
         ('admin', 'System Admin'),
     ]
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     id_number = models.CharField(max_length=20, unique=True) # National ID or Police ID
     address = models.TextField(blank=True, null=True)

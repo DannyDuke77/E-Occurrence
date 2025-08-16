@@ -4,4 +4,7 @@ from .models import Userprofile
 
 # Register your models here.
 
-admin.site.register(Userprofile)
+@admin.register(Userprofile)
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ("user", "uuid",)
+    readonly_fields = ("uuid",)

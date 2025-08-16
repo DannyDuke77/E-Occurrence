@@ -20,5 +20,6 @@ urlpatterns = [
         name='admin-login'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
+    path('profile/<uuid:uuid>/', views.profile_view, name='profile_view'),
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

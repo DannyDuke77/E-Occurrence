@@ -21,6 +21,7 @@ class Case(models.Model):
         ('granted', 'Granted'),
         ('denied', 'Denied'),
         ('pending', 'Pending'),
+        ('not_applicable', 'Not Applicable'),
     ]
 
     CASE_TYPE_CHOICES = [
@@ -76,6 +77,7 @@ class Case(models.Model):
         'Witness', blank=True, related_name='cases'
     )
     incident_date = models.DateField(null=True, blank=True)  # Date of the incident
+    report_date = models.DateField(auto_now_add=True)  # Date when the case was reported
     location = models.CharField(max_length=255, blank=True, null=True)
 
     title = models.CharField(max_length=255)
@@ -146,6 +148,7 @@ class Complainant(models.Model):
         return f"{full_name} - {self.id_number or 'No ID'}"
     
 class Suspect(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     name = models.CharField(max_length=255)
     national_id = models.CharField(max_length=20, blank=True, null=True)
     contact_info = models.CharField(max_length=100, blank=True, null=True)
@@ -172,3 +175,31 @@ class Witness(models.Model):
     
     class Meta:
         verbose_name_plural = "Witnesses"
+
+class CourtDecision(models.Model):
+    DECISION_CHOICES = [
+        ('BAIL_GRANTED', 'Bail Granted'),
+        ('BAIL_DENIED', 'Bail Denied'),
+        ('DISMISSED', 'Case Dismissed'),
+        ('SENTENCED', 'Sentenced'),
+        ('ADJOURNED', 'Adjourned'),
+        ('OTHER', 'Other'),
+    ]
+
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
+    case = models.ForeignKey('cases.Case', on_delete=models.CASCADE, related_name='court_decisions')
+    recorded_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name='court_decisions'
+    )
+    
+    decision_type = models.CharField(max_length=20, choices=DECISION_CHOICES)
+    decision_text = models.TextField()
+    decision_date = models.DateTimeField(auto_now_add=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-decision_date']
+
+    def __str__(self):
+        return f"{self.get_decision_type_display()} - Case {self.case.case_number}"

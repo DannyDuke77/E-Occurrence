@@ -1,5 +1,5 @@
 from django import forms
-from .models import Complainant, Case, Suspect, Witness
+from .models import Complainant, Case, Suspect, Witness, CourtDecision
 
 INPUT_CLASSES = 'w-full py-2 px-4 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
 
@@ -184,3 +184,20 @@ class WitnessForm(forms.ModelForm):
                     "You must fill in at least one field before submitting."
                 )
             return cleaned_data
+        
+class CourtDecisionForm(forms.ModelForm):
+    class Meta:
+        model = CourtDecision
+        fields = ['decision_type', 'decision_text']
+        widgets = {
+            'decision_type': forms.Select(attrs={
+                'class': INPUT_CLASSES
+            }),
+            'decision_text': forms.Textarea(attrs={
+                'placeholder': 'Decision Details', 
+                'rows': '4',
+                'cols': '40',
+                'style': 'resize: none',
+                'class': INPUT_CLASSES
+            }),
+        }

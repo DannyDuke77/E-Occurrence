@@ -11,4 +11,6 @@ urlpatterns = [
     path('case/edit/<uuid:uuid>/', views.edit_case, name='edit_case'),
     path('search/', views.search_cases, name='search_cases'),
     path('case/witness/new/<uuid:uuid>/', views.witness_entry, name='witness_entry'),
+    path('case/suspect/new/<uuid:uuid>/', views.suspect_entry, name='suspect_entry'),
+    path('case/republic-court-decision/<uuid:uuid>/', views.republic_court_decision , name='republic_court_decision'),
 ]

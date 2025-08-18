@@ -1,0 +1,41 @@
+{% extends "core/base.html" %}
+
+{% block title %}Witness Entry{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto p-8 bg-white rounded-2xl shadow-lg">
+    <h2 class="text-3xl font-bold text-center text-indigo-800 mb-6">New Suspect</h2>
+
+    <div class="mb-6 bg-gray-200 p-4 rounded-lg shadow-sm">
+        <a href="{% url 'cases:case_details' case.uuid %}" class="text-lg font-semibold mb-2">Case: <span class="text-blue-600 underline underline-offset-2">{{ case.case_number }}</span> - {{ case.title }}</a>
+        <p class="text-sm text-gray-600 mb-4">Please fill out the details of the suspect below.</p>
+    </div>
+
+    <form method="post" class="">
+        
+        {% if form.errors %}
+            <div class="bg-red-100 text-red-600 text-sm p-4 rounded mb-4">
+                {{ form.errors }}
+            </div>
+        {% endif %}
+
+        {% csrf_token %}
+
+        {% for field in form.visible_fields %}
+            <div class="mb-5">
+                <label class="block mb-1 text-sm text-gray-600">
+                    {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                </label>
+                {{ field }}
+                {% if field.help_text %}
+                    <small class="text-gray-500 italic block mt-1">{{ field.help_text }}</small>
+                {% endif %}
+            </div>
+        {% endfor %}
+
+        <button type="submit" class="w-full py-3 px-6 mt-4 bg-green-600 hover:bg-green-800 text-white font-semibold rounded-lg shadow-md transition duration-300">
+            Add Suspect
+        </button>
+    </form>
+</div>
+{% endblock %}

@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.db.models.functions import Concat
 from django.db.models import CharField, Value
 
-from .forms import ComplainantForm, CaseForm, WitnessForm,  SuspectForm
+from .forms import ComplainantForm, CaseForm, WitnessForm,  SuspectForm, CourtDecisionForm
 from .models import Complainant, Case
 
 from accounts.models import Userprofile
@@ -98,6 +98,7 @@ def case_details(request, uuid):
         case = get_object_or_404(Case, uuid=uuid)
         witnesses = case.witnesses.all()
         suspects = case.suspects.all()
+        
         return render(request, "cases/case_details.html", {
             "case": case,
             "witnesses": witnesses,
@@ -161,3 +162,71 @@ def witness_entry(request, uuid):
         form = WitnessForm()
 
     return render(request, 'cases/witness_entry.html', {'form': form, 'case': case})
+
+@login_required
+def suspect_entry(request, uuid):
+    case = get_object_or_404(Case, uuid=uuid)
+
+    if request.method == 'POST':
+        form = SuspectForm(request.POST)
+        if form.is_valid():
+            suspect = form.save()
+            # Link suspect to the case
+            case.suspects.add(suspect)
+            case.save()
+
+            messages.success(request, "Suspect added successfully.")
+
+            return redirect('cases:case_details', uuid=case.uuid)
+    else:
+        form = SuspectForm()
+
+    return render(request, 'cases/suspect_entry.html', {'form': form, 'case': case})
+
+def republic_court_decision(request, uuid):
+    case = get_object_or_404(Case, uuid=uuid)
+    form_title = f"Court Decision for Case #{case.case_number}"
+
+    if case.status not in ['pending', 'open', 'in_court']:
+        messages.error(request, "Court decision can only be recorded for pending or open cases.")
+        return redirect('cases:case_details', uuid=case.uuid)
+    
+    if case.bail_decision != 'not_applicable':
+        messages.error(request, "Court decision has already been recorded for this case.")
+        return redirect('cases:case_details', uuid=case.uuid)
+    
+
+    if request.method == 'POST':
+        form = CourtDecisionForm(request.POST)
+        if form.is_valid():
+            # Save court decision
+            decision = form.save(commit=False)
+            decision.case = case
+            decision.recorded_by = request.user
+            decision.save()
+
+            if decision.decision_type == 'BAIL_GRANTED':
+                case.bail_decision = 'granted'
+                case.status = 'in_court'
+                case.save()
+            
+            if decision.decision_type == 'DISMISSED':
+                case.bail_decision = 'not_applicable'
+                case.status = 'dismissed'
+                case.save()
+            
+            if decision.decision_type == 'SENTENCED':
+                case.bail_decision = 'not_applicable'
+                case.status = 'closed'
+                case.save()
+
+            messages.success(request, "Court decision recorded successfully.")
+            return redirect('cases:case_details', uuid=case.uuid)
+    else:
+        form = CourtDecisionForm()
+
+    return render(request, 'cases/court_decision.html', {
+        'form': form, 
+        'case': case,
+        'form_title': form_title
+        })

@@ -1,9 +1,10 @@
 from django.contrib import admin
 
-from .models import Complainant, Case, Suspect, Witness
+from .models import Complainant, Case, Suspect, Witness, CourtDecision
 # Register your models here.
 admin.site.register(Suspect)
 admin.site.register(Witness)
+admin.site.register(CourtDecision)
 
 
 class WitnessInline(admin.TabularInline):

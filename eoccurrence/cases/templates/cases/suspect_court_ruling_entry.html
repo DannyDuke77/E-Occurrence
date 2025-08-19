@@ -1,0 +1,40 @@
+{% extends "core/base.html" %}
+
+{% block title %}{{ form_title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto p-6 bg-white rounded-xl shadow-md">
+    <!-- Header -->
+    <h1 class="text-2xl font-bold mb-6 text-gray-800">
+        {{ form_title }}
+    </h1>
+
+    <!-- Suspect + Case Info -->
+    <div class="mb-6 p-4 bg-gray-50 border rounded-lg">
+        <p><span class="font-semibold">Suspect ID:</span> {{ suspect.national_id }}</p>
+        <p><span class="font-semibold">Case:</span>
+            <a href="{% url 'cases:case_details' case.uuid %}" class="text-blue-600 hover:underline">
+                {{ case.case_number }} - {{ case.title }}
+            </a>
+        </p>
+    </div>
+
+    <!-- Ruling Form -->
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <!-- Actions -->
+        <div class="flex items-center gap-3 mt-6">
+            <button type="submit"
+                class="px-5 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700">
+                Save
+            </button>
+            <a href="{% url 'cases:suspect_page' case.uuid suspect.uuid %}"
+                class="px-5 py-2 bg-gray-500 text-white rounded-lg shadow hover:bg-gray-600">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

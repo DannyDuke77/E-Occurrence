@@ -86,10 +86,6 @@ class Case(models.Model):
     recorded_by = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, related_name='cases_reported'
     )
-    
-    bail_decision = models.CharField(
-        max_length=20, choices=BAIL_CHOICES, default='pending',
-    )
 
     status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='open')
     court_date = models.DateField(null=True, blank=True)
@@ -148,20 +144,38 @@ class Complainant(models.Model):
         return f"{full_name} - {self.id_number or 'No ID'}"
     
 class Suspect(models.Model):
+    BAIL_CHOICES = [
+    ('granted', 'Granted'),
+    ('denied', 'Denied'),
+    ('pending', 'Pending'),
+    ('not_applicable', 'Not Applicable'),
+    ]
+    
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     name = models.CharField(max_length=255)
     national_id = models.CharField(max_length=20, blank=True, null=True)
     contact_info = models.CharField(max_length=100, blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
     address = models.TextField(blank=True, null=True)
+    
+    statement = models.TextField(blank=True, null=True)
+    statement_date = models.DateField(auto_now_add=True)
     arrest_date = models.DateField(blank=True, null=True)
-    charges = models.TextField(blank=True, null=True)
+    arrest_location = models.CharField(max_length=255, blank=True, null=True)
+    bail_status = models.CharField(
+        max_length=20, choices=BAIL_CHOICES, default='pending',
+    )
+    recorded_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name='suspects_recorded'
+    )
 
+    charges = models.TextField(blank=True, null=True)
     def __str__(self):
         return self.name
 
 
 class Witness(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     name = models.CharField(max_length=255)
     national_id = models.CharField(max_length=20, blank=True, null=True)
     contact_info = models.CharField(max_length=100, blank=True, null=True)
@@ -178,24 +192,20 @@ class Witness(models.Model):
 
 class CourtDecision(models.Model):
     DECISION_CHOICES = [
-        ('BAIL_GRANTED', 'Bail Granted'),
-        ('BAIL_DENIED', 'Bail Denied'),
+        ('CLOSED', 'Case Closed'),
         ('DISMISSED', 'Case Dismissed'),
-        ('SENTENCED', 'Sentenced'),
-        ('ADJOURNED', 'Adjourned'),
+        ('ADJOURNED', 'Case Adjourned'),
+        ('TRANSFERRED', 'Case Transferred'),
         ('OTHER', 'Other'),
     ]
 
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
-    case = models.ForeignKey('cases.Case', on_delete=models.CASCADE, related_name='court_decisions')
-    recorded_by = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, related_name='court_decisions'
-    )
-    
-    decision_type = models.CharField(max_length=20, choices=DECISION_CHOICES)
-    decision_text = models.TextField()
-    decision_date = models.DateTimeField(auto_now_add=True)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name='court_decisions')
+    recorded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='court_decisions')
 
+    decision_type = models.CharField(max_length=20, choices=DECISION_CHOICES)
+    decision_text = models.TextField(blank=True, null=True)
+    decision_date = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -203,3 +213,69 @@ class CourtDecision(models.Model):
 
     def __str__(self):
         return f"{self.get_decision_type_display()} - Case {self.case.case_number}"
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if self.decision_type == 'CLOSED':
+            self.case.status = 'closed'
+            self.case.save()
+
+        elif self.decision_type == 'DISMISSED':
+            self.case.status = 'dismissed'
+            self.case.save()
+
+        else:
+            self.case.status = 'in_court'
+            self.case.save()
+    
+class SuspectCourtRuling(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    suspect = models.ForeignKey(Suspect, related_name="rulings", on_delete=models.CASCADE)
+    case = models.ForeignKey(Case, related_name="rulings", on_delete=models.CASCADE)
+
+    RULING_CHOICES = [
+        ('bail_granted', 'Bail Granted'),
+        ('bail_denied', 'Bail Denied'),
+        ('fined', 'Fined'),
+        ('dismissed', 'Dismissed'),
+        ('sentenced', 'Sentenced'),
+        ('acquitted', 'Acquitted'),
+        ('adjourned', 'Adjourned'),
+    ]
+    ruling_type = models.CharField(max_length=20, choices=RULING_CHOICES)
+    ruling_text = models.TextField()
+
+    recorded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    recorded_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("suspect", "case", "ruling_type")  
+        # Prevent duplicate rulings of the same type for same suspect in same case
+
+    def __str__(self):
+        return f"{self.suspect.name} - {self.ruling_type} (Case #{self.case.case_number})"
+    
+    # models.py
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)  # save ruling first
+
+        # Update suspect bail status based on ruling
+        if self.ruling_type == 'bail_granted':
+            self.suspect.bail_status = 'granted'
+        elif self.ruling_type == 'bail_denied':
+            self.suspect.bail_status = 'denied'
+        elif self.ruling_type == 'fined':
+            self.suspect.bail_status = 'not_applicable'
+        elif self.ruling_type == 'dismissed':
+            self.suspect.bail_status = 'not_applicable'
+        elif self.ruling_type == 'sentenced':
+            self.suspect.bail_status = 'not_applicable'
+        elif self.ruling_type == 'acquitted':
+            self.suspect.bail_status = 'not_applicable'
+        elif self.ruling_type == 'adjourned':
+            self.suspect.bail_status = 'not_applicable'
+
+        # if "Other", don't touch bail_status
+        self.suspect.save(update_fields=['bail_status'])

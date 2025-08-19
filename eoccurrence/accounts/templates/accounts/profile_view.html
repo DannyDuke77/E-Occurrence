@@ -64,7 +64,7 @@
 
     <!-- Action Button -->
     <div class="flex justify-start mt-4">
-        <a href="{% url 'cases:search_cases' %}?query={{ profile.user.get_full_name|urlencode }}"
+        <a href="{% url 'cases:search_cases' %}?recorded_by={{ profile.user.username }}"
            class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md transition-transform transform hover:scale-105 hover:shadow-xl">
             Cases Recorded
         </a>

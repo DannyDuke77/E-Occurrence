@@ -1,0 +1,59 @@
+{% extends "core/base.html" %}
+
+{% block title %}Witness Page - {{ witness.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-md">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">
+            Witness: {{ witness.name }}
+        </h1>
+        <a href="{% url 'cases:case_details' case.uuid %}" 
+           class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+            ← Back to Case
+        </a>
+    </div>
+
+    <!-- Witness Info Card -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-gray-50 p-4 rounded-xl shadow-sm">
+            <h2 class="text-lg font-semibold text-gray-700 mb-2">Personal Details</h2>
+            <p><span class="font-medium">Name:</span> {{ witness.name }}</p>
+            <p><span class="font-medium">National ID:</span> {{ witness.national_id|default:"N/A" }}</p>
+            <p><span class="font-medium">Date of Birth:</span> {{ witness.date_of_birth|date:"M d, Y"|default:"N/A" }}</p>
+            <p><span class="font-medium">Address:</span> {{ witness.address|default:"N/A" }}</p>
+            <p><span class="font-medium">Contact Info:</span> {{ witness.contact_info|default:"N/A" }}</p>
+        </div>
+
+        <div class="bg-gray-50 p-4 rounded-xl shadow-sm">
+            <h2 class="text-lg font-semibold text-gray-700 mb-2">Statement Info</h2>
+            <p><span class="font-medium">Date of Statement:</span> {{ witness.date_of_statement|date:"M d, Y" }}</p>
+        </div>
+    </div>
+
+    <!-- Statement Section -->
+    <div class="mt-6 bg-gray-50 p-4 rounded-xl shadow-sm">
+        <h2 class="text-lg font-semibold text-gray-700 mb-3">Witness Statement</h2>
+        <p class="text-gray-800 whitespace-pre-line">
+            {{ witness.statement|default:"No statement provided." }}
+        </p>
+    </div>
+
+    <!-- Actions -->
+    <div class="mt-6 flex justify-end gap-4">
+        <a href="#" 
+           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+            Edit Witness
+        </a>
+        <form action="#" method="post"
+              onsubmit="return confirm('Are you sure you want to delete this witness?');">
+            {% csrf_token %}
+            <button type="submit" 
+                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                Delete Witness
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

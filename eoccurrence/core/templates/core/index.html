@@ -3,23 +3,78 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-    {% if messages %}
-        <div class="space-y-2">
-            {% for message in messages %}
-            <div
-                class="p-2 text-sm font-semibold rounded 
-                    {% if message.tags == 'error' %}bg-red-200 text-red-800
-                    {% elif message.tags == 'success' %}bg-green-200 text-green-900
-                    {% else %}bg-gray-200 text-gray-800{% endif %}">
-                {{ message }}
-            </div>
-            {% endfor %}
-        </div>
-    {% endif %}
+<div class="max-w-6xl mx-auto p-6">
 
-    <div class="mx-auto p-8 bg-white">
-        <h1 class="text-3xl font-bold text-center text-indigo-800 mb-6">Welcome to the E-Occurrence System</h1>
-        <p class="text-gray-700 text-lg text-center mb-4">Your one-stop solution for managing court occurrences and updates.</p>
-        <p class="text-gray-600 text-md text-center mb-8">Please use the sidebar to navigate through the system.</p>
+  <!-- Header -->
+  <h1 class="text-3xl font-bold text-gray-800 mb-6">
+    e-Occurrence System
+  </h1>
+  <p class="text-gray-600 mb-10">
+    Welcome to the Digital Occurrence Book (OB) and Case Progress System.
+  </p>
+
+  <!-- Dashboard Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+    <!-- Cases -->
+    <a href="{% url 'cases:view_cases' %}" 
+       class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
+      <h2 class="text-xl font-semibold mb-2">📂 Cases</h2>
+      <p class="text-gray-600">Manage police cases and track progress.</p>
+    </a>
+
+    <!-- Suspects -->
+    <a href="{% url 'cases:suspect_list' %}" 
+       class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
+      <h2 class="text-xl font-semibold mb-2">👤 Suspects</h2>
+      <p class="text-gray-600">View suspects and bail status.</p>
+    </a>
+
+    <!-- Witnesses -->
+    <a href="{% url 'cases:witness_list' %}" 
+       class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
+      <h2 class="text-xl font-semibold mb-2">👥 Witnesses</h2>
+      <p class="text-gray-600">Access witness statements and details.</p>
+    </a>
+
+    <!-- Court Rulings -->
+    <a href="#" 
+       class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
+      <h2 class="text-xl font-semibold mb-2">⚖️ Court Rulings</h2>
+      <p class="text-gray-600">Record and review rulings per suspect.</p>
+    </a>
+
+    <!-- Reports -->
+    <a href="{% url 'cases:statistics' %}"
+       class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
+      <h2 class="text-xl font-semibold mb-2">📊 Reports</h2>
+      <p class="text-gray-600">Generate summaries and case statistics.</p>
+    </a>
+
+  </div>
+
+  <!-- Stats Section -->
+  <div class="mt-12 bg-gray-100 p-6 rounded-2xl shadow">
+    <h2 class="text-2xl font-semibold mb-4">Quick Stats</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+      <div>
+        <p class="text-3xl font-bold text-blue-600">{{ total_cases }}</p>
+        <p class="text-gray-600">Cases</p>
+      </div>
+      <div>
+        <p class="text-3xl font-bold text-green-600">{{ total_suspects }}</p>
+        <p class="text-gray-600">Suspects</p>
+      </div>
+      <div>
+        <p class="text-3xl font-bold text-purple-600">{{ total_witnesses }}</p>
+        <p class="text-gray-600">Witnesses</p>
+      </div>
+      <div>
+        <p class="text-3xl font-bold text-red-600">{{ open_cases }}</p>
+        <p class="text-gray-600">Open Cases</p>
+      </div>
     </div>
+  </div>
+
+</div>
 {% endblock %}

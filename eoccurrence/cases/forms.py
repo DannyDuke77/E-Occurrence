@@ -1,5 +1,5 @@
 from django import forms
-from .models import Complainant, Case, Suspect, Witness, CourtDecision
+from .models import Complainant, Case, Suspect, Witness, CourtDecision, SuspectCourtRuling
 
 INPUT_CLASSES = 'w-full py-2 px-4 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
 
@@ -92,7 +92,7 @@ class CaseForm(forms.ModelForm):
 class SuspectForm(forms.ModelForm):
     class Meta:
         model = Suspect
-        fields = ['name', 'national_id', 'contact_info', 'date_of_birth', 'address', 'arrest_date', 'charges']
+        fields = ['name', 'national_id', 'contact_info', 'date_of_birth', 'address', 'statement', 'arrest_date', 'arrest_location', 'charges']
         widgets = {
             'name': forms.TextInput(attrs={
                 'placeholder': 'Suspect Name', 
@@ -117,8 +117,19 @@ class SuspectForm(forms.ModelForm):
                 'style': 'resize: none',
                 'class': INPUT_CLASSES
             }),
+            'statement': forms.Textarea(attrs={
+                'placeholder': 'Statement', 
+                'rows': '4',
+                'cols': '40',
+                'style': 'resize: none',
+                'class': INPUT_CLASSES
+            }),
             'arrest_date': forms.DateInput(attrs={
                 'type': 'date', 
+                'class': INPUT_CLASSES
+            }),
+            'arrest_location': forms.TextInput(attrs={
+                'placeholder': 'Arrest Location', 
                 'class': INPUT_CLASSES
             }),
             'charges': forms.Textarea(attrs={
@@ -199,5 +210,21 @@ class CourtDecisionForm(forms.ModelForm):
                 'cols': '40',
                 'style': 'resize: none',
                 'class': INPUT_CLASSES
+            }),
+        }
+
+class SuspectCourtRulingForm(forms.ModelForm):
+    class Meta:
+        model = SuspectCourtRuling
+        fields = ["ruling_type", "ruling_text"]
+
+        widgets = {
+            "ruling_type": forms.Select(attrs={
+                "class": "w-full p-2 border rounded-lg"
+            }),
+            "ruling_text": forms.Textarea(attrs={
+                "class": "w-full p-2 border rounded-lg",
+                "rows": 3,
+                "placeholder": "Enter details of the ruling..."
             }),
         }

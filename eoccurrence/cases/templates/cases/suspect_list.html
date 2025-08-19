@@ -1,0 +1,91 @@
+{% extends "core/base.html" %}
+
+{% block title %}Suspects{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto p-6">
+  <h1 class="text-4xl font-extrabold mb-8 text-gray-800 flex items-center gap-2">
+    👤 Suspects
+  </h1>
+
+  <!-- Table -->
+  <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200">
+    <table class="w-full text-sm text-left">
+      <thead class="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 text-xs uppercase tracking-wide">
+        <tr>
+          <th class="py-3 px-6">Name</th>
+          <th class="py-3 px-6">ID Number</th>
+          <th class="py-3 px-6">Bail Status</th>
+          <th class="py-3 px-6">Cases</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200">
+        {% for suspect in page_obj %}
+        <tr class="hover:bg-gray-50 transition">
+          <!-- Name -->
+          <td class="py-4 px-6 font-semibold text-gray-900">
+            {{ suspect.name }}
+          </td>
+
+          <!-- ID Number -->
+          <td class="py-4 px-6 text-gray-700">
+            {{ suspect.national_id|default:"—" }}
+          </td>
+
+          <!-- Bail Status with badge -->
+          <td class="py-4 px-6">
+            <span class="px-3 py-1 text-sm rounded-full 
+            {% if suspect.bail_status == 'granted' %} bg-green-100 text-green-900
+            {% elif suspect.bail_status == 'denied' %} bg-red-100 text-red-700
+            {% elif suspect.bail_status == 'pending' %} bg-yellow-100 text-yellow-700
+            {% else %} bg-gray-100 text-gray-700
+            {% endif %}">
+            {{ suspect.get_bail_status_display }}
+        </span>
+          </td>
+
+          <!-- Linked Cases -->
+            <td class="py-4 px-6">
+                <div class="flex flex-wrap gap-2">
+                    {% for case in suspect.cases.all %}
+                    <a href="{% url 'cases:case_details' case.uuid %}" 
+                        class="inline-block px-3 py-1 rounded-lg text-xs font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 transition">
+                        {{ case.case_number }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="text-center py-4 text-gray-500">
+            No suspects found.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="flex justify-between items-center mt-8">
+    {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}" 
+         class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition font-medium">← Previous</a>
+    {% else %}
+      <span class="px-4 py-2 bg-gray-100 rounded-lg text-gray-400 font-medium">← Previous</span>
+    {% endif %}
+
+    <span class="text-gray-600 font-medium">
+      Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+    </span>
+
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}" 
+         class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition font-medium">Next →</a>
+    {% else %}
+      <span class="px-4 py-2 bg-gray-100 rounded-lg text-gray-400 font-medium">Next →</span>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

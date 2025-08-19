@@ -1,0 +1,64 @@
+{% extends "core/base.html" %}
+
+{% block title %}Statistics{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">Case Statistics</h1>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <!-- Cases Card -->
+        <div class="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center justify-center">
+            <h2 class="text-xl font-semibold text-gray-700 mb-2">Total Cases</h2>
+            <p class="text-4xl font-bold text-blue-600">{{ number_of_cases }}</p>
+        </div>
+
+        <!-- Suspects Card -->
+        <div class="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center justify-center">
+            <h2 class="text-xl font-semibold text-gray-700 mb-2">Total Suspects</h2>
+            <p class="text-4xl font-bold text-red-500">{{ number_of_suspects }}</p>
+        </div>
+
+        <!-- Witnesses Card -->
+        <div class="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center justify-center">
+            <h2 class="text-xl font-semibold text-gray-700 mb-2">Total Witnesses</h2>
+            <p class="text-4xl font-bold text-green-500">{{ number_of_witnesses }}</p>
+        </div>
+    </div>
+
+    <div class="mt-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4">Cases by Status</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            <a href="{% url 'cases:search_cases' %}?status=open" class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition p-6 flex flex-col items-center justify-center">
+                
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Open Cases</h3>
+                <p class="text-3xl font-bold text-blue-600">{{ number_of_open_cases|default:"0" }}</p>
+            </a>
+            <a href="{% url 'cases:search_cases' %}?status=closed" class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition p-6 flex flex-col items-center justify-center">
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Closed Cases</h3>
+                <p class="text-3xl font-bold text-red-500">{{ number_of_closed_cases|default:"0" }}</p>
+            </a>
+            <a href="{% url 'cases:search_cases' %}?status=dismissed" class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition p-6 flex flex-col items-center justify-center">
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Dismissed Cases</h3>
+                <p class="text-3xl font-bold text-green-500">{{ number_of_dismissed_cases|default:"0" }}</p>
+            </a>
+            <a href="{% url 'cases:search_cases' %}?status=under_investigation" class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition p-6 flex flex-col items-center justify-center">
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">Under Investigation Cases</h3>
+                <p class="text-3xl font-bold text-yellow-500">{{ number_of_under_investigation|default:"0" }}</p>
+            </a>
+            <a href="{% url 'cases:search_cases' %}?status=in_court" class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition p-6 flex flex-col items-center justify-center">
+                <h3 class="text-lg font-semibold text-gray-700 mb-2">In Court Cases</h3>
+                <p class="text-3xl font-bold text-orange-500">{{ number_of_in_court|default:"0" }}</p>
+            </a>
+        </div>
+    </div>
+
+    <!-- Optional Reports Button -->
+    <div class="mt-8 flex justify-center">
+        <a href="#" 
+           class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 transition">
+           Generate Summaries and Case Statistics
+        </a>
+    </div>
+</div>
+{% endblock %}

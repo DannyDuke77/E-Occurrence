@@ -6,5 +6,5 @@ from .models import Userprofile
 
 @admin.register(Userprofile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ("user", "uuid",)
+    list_display = ("user", "uuid", "is_active")
     readonly_fields = ("uuid",)

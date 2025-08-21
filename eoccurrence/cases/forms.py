@@ -1,4 +1,7 @@
 from django import forms
+
+from django.core.exceptions import ValidationError
+
 from .models import Complainant, Case, Suspect, Witness, CourtDecision, SuspectCourtRuling
 
 INPUT_CLASSES = 'w-full py-2 px-4 rounded-xl bg-white border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
@@ -6,7 +9,7 @@ INPUT_CLASSES = 'w-full py-2 px-4 rounded-xl bg-white border border-gray-300 foc
 class ComplainantForm(forms.ModelForm):
     class Meta:
         model = Complainant
-        fields = ['first_name', 'last_name', 'id_number','phone_number', 'email', 'gender', 'date_of_birth',  'address', 'county', 'sub_county']
+        fields = ['first_name', 'last_name', 'id_number','phone_number', 'email', 'gender', 'date_of_birth',  'address', 'county', 'sub_county', 'statement']
         widgets = {
             'first_name': forms.TextInput(attrs={
                 'placeholder': 'First Name', 
@@ -50,17 +53,21 @@ class ComplainantForm(forms.ModelForm):
                 'placeholder': 'Sub County', 
                 'class': INPUT_CLASSES
             }),
+            'statement': forms.Textarea(attrs={
+                'placeholder': 'Complainant Statement', 
+                'rows': '4',
+                'cols': '40',
+                'style': 'resize: none',
+                'class': INPUT_CLASSES
+            }),
         }
 
 class CaseForm(forms.ModelForm):
     class Meta:
         model = Case
-        exclude = ['case_number', 'recorded_by', 'date_reported', 'complainant', 'suspects', 'witnesses']
         fields = ['case_type', 'title', 'location', 'description', 'status', 'incident_date', 'court_date']
         widgets = {
-            'case_type': forms.Select(attrs={
-                'class': INPUT_CLASSES
-            }),
+            'case_type': forms.Select(attrs={'class': INPUT_CLASSES}),
             'title': forms.TextInput(attrs={
                 'placeholder': 'Case Title', 
                 'class': INPUT_CLASSES
@@ -76,9 +83,7 @@ class CaseForm(forms.ModelForm):
                 'cols': '40',
                 'style': 'resize: none',
             }),
-            'status': forms.Select(attrs={
-                'class': INPUT_CLASSES
-            }),
+            'status': forms.Select(attrs={'class': INPUT_CLASSES}),
             'incident_date': forms.DateInput(attrs={
                 'type': 'date', 
                 'class': INPUT_CLASSES,
@@ -89,10 +94,33 @@ class CaseForm(forms.ModelForm):
             }),
         }
 
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)  # store user
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if not self.user:
+            return cleaned_data  
+
+        # Restrict non-police users to modify only the status field
+        if self.user.is_authenticated and self.user.profile.user_role not in ['admin', 'police']:
+            for field in self.fields:
+                if field != "status":  
+                    old_value = getattr(self.instance, field)
+                    new_value = cleaned_data.get(field)
+
+                    if old_value != new_value:  # if user tried to change it
+                        raise ValidationError(
+                            {field: "You are not allowed to modify this field."}
+                        )
+
+        return cleaned_data
+        
 class SuspectForm(forms.ModelForm):
     class Meta:
         model = Suspect
-        fields = ['name', 'national_id', 'contact_info', 'date_of_birth', 'address', 'statement', 'arrest_date', 'arrest_location', 'charges']
+        fields = ['name', 'national_id', 'contact_info', 'gender', 'date_of_birth', 'address', 'statement', 'arrest_date', 'arrest_location', 'charges']
         widgets = {
             'name': forms.TextInput(attrs={
                 'placeholder': 'Suspect Name', 
@@ -104,6 +132,9 @@ class SuspectForm(forms.ModelForm):
             }),
             'contact_info': forms.TextInput(attrs={
                 'placeholder': 'Contact Information', 
+                'class': INPUT_CLASSES
+            }),
+            'gender': forms.Select(attrs={
                 'class': INPUT_CLASSES
             }),
             'date_of_birth': forms.DateInput(attrs={

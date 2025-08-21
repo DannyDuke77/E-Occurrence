@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 from django.contrib.auth.forms import AuthenticationForm
 from django.utils.translation import gettext_lazy as _
+from django.core.exceptions import ValidationError
 
 from .models import Userprofile
 
@@ -19,8 +20,17 @@ class loginForm(AuthenticationForm):
         'class': INPUT_CLASSES,
     }))
     error_messages = {
-        'invalid_login': _("Invalid username or ID number, or password. Please try again. If all else fails, contact your administrator."),
+        'invalid_login': _("Invalid username or ID number, or password."),
     }
+
+    def confirm_login_allowed(self, user):
+        # If your UserProfile is linked via OneToOne
+        if hasattr(user, "profile"):
+            if not user.profile.is_active:
+                raise ValidationError(
+                    "Your account is inactive. Please contact the admin.",
+                    code="inactive",
+                )
 
 class CustomUserCreationForm(UserCreationForm):
     username = forms.CharField(max_length=30, required=True)

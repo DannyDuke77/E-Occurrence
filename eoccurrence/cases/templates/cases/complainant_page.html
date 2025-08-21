@@ -1,6 +1,6 @@
 {% extends "core/base.html" %}
 
-{% block title %}Witness - {{ witness.name }}{% endblock %}
+{% block title %}Complainant - {{ complainant.first_name }} {{ complainant.last_name }}{% endblock %}
 
 {% block content %}
 <!-- Back button -->
@@ -13,28 +13,28 @@
         Back to Case
     </a>
 </div>
+
 <div class="max-w-6xl mx-auto p-6 mt-8 bg-white rounded-2xl shadow-lg">
-    <!-- Flash messages -->
     {% if messages %}
-        <div class="space-y-2 mb-6">
+        <div class="mb-6 space-y-2">
             {% for message in messages %}
-                <div class="p-3 rounded-lg text-sm 
-                            {% if message.tags == 'success' %}bg-green-100 text-green-700
-                            {% elif message.tags == 'error' %}bg-red-100 text-red-700
-                            {% else %}bg-blue-100 text-blue-700{% endif %}">
+                <div class="p-3 rounded-lg shadow-sm text-sm font-semibold
+                    {% if message.tags == 'error' %}bg-red-100 text-red-800 border border-red-300
+                    {% elif message.tags == 'success' %}bg-green-100 text-green-900 border border-green-300
+                    {% else %}bg-gray-100 text-gray-800 border border-gray-300{% endif %}">
                     {{ message }}
                 </div>
             {% endfor %}
         </div>
     {% endif %}
 
-    <!-- Witness Header -->
+    <!-- Header -->
     <div class="flex gap-4 items-center mb-6">
         <h1 class="text-3xl font-bold text-gray-800">
-            {{ witness.name }}
+            {{ complainant.first_name }} {{ complainant.last_name }}
         </h1>
-        <span class="px-3 py-1 text-sm font-semibold rounded-full shadow-sm bg-green-100 text-green-800">
-            Witness
+        <span class="px-3 py-1 text-sm font-semibold rounded-full shadow-sm bg-blue-100 text-blue-800">
+            Complainant
         </span>
     </div>
 
@@ -49,15 +49,15 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 <p class="text-sm text-gray-500">National ID / Passport</p>
-                <p class="font-medium">{{ witness.national_id|default:"N/A" }}</p>
+                <p class="font-medium">{{ complainant.id_number|default:"N/A" }}</p>
             </div>
             <div>
                 <p class="text-sm text-gray-500">Gender</p>
-                <p class="font-medium">{{ witness.get_gender_display|default:"N/A" }}</p>
+                <p class="font-medium">{{ complainant.get_gender_display|default:"N/A" }}</p>
             </div>
             <div>
                 <p class="text-sm text-gray-500">Date of Birth</p>
-                <p class="font-medium">{{ witness.date_of_birth|date:"F j, Y"|default:"N/A" }}</p>
+                <p class="font-medium">{{ complainant.date_of_birth|date:"F j, Y"|default:"N/A" }}</p>
             </div>
         </div>
     </div>
@@ -73,11 +73,21 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
                 <p class="text-sm text-gray-500">Phone</p>
-                <p class="font-medium">{{ witness.contact_info|default:"N/A" }}</p>
+                <p class="font-medium">{{ complainant.phone_number|default:"N/A" }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Email</p>
+                <p class="font-medium">{{ complainant.email|default:"N/A" }}</p>
             </div>
             <div>
                 <p class="text-sm text-gray-500">Address</p>
-                <p class="font-medium">{{ witness.address|default:"N/A" }}</p>
+                <p class="font-medium">{{ complainant.address|default:"N/A" }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">County / Sub-County</p>
+                <p class="font-medium">
+                    {{ complainant.county|default:"N/A" }}{% if complainant.sub_county %}, {{ complainant.sub_county }}{% endif %}
+                </p>
             </div>
         </div>
     </div>
@@ -96,7 +106,7 @@
         </a>
     </div>
 
-    <!-- Witness Statement -->
+    <!-- Statement -->
     <div class="mb-8">
         <h2 class="text-xl flex items-center gap-2 font-semibold mb-3 text-gray-800 border-b pb-1">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -105,15 +115,18 @@
             Statement
         </h2>
         <div class="space-y-2">
-            <p class="text-sm text-gray-500">Recorded On: {{ witness.date_of_statement|date:"F j, Y"|default:"N/A" }}</p>
-            <p class="font-medium whitespace-pre-line">{{ witness.statement|default:"No statement recorded." }}</p>
+            <p class="text-sm text-gray-500">Recorded On: {{ complainant.created_at|date:"F j, Y"|default:"N/A" }}</p>
+            <p class="font-medium whitespace-pre-line">{{ case.description|default:"No statement recorded." }}</p>
         </div>
     </div>
 
-    <!-- Meta Information -->
+    <!-- Meta Info -->
     <div class="text-xs text-gray-500 border-t pt-4">
-        <p>Record created: {{ witness.created_at|date:"M d, Y H:i" }}</p>
-        <p>Last updated: {{ witness.updated_at|date:"M d, Y H:i" }}</p>
+        <p>Record created: {{ complainant.created_at|date:"M d, Y H:i" }}</p>
+        <p>Record created by: 
+            <a href="{% url 'accounts:profile_view' case.recorded_by.profile.uuid %}" class="text-blue-600 hover:text-blue-800 hover:underline transition">{{ case.recorded_by.first_name }} {{ case.recorded_by.last_name|default:"N/A" }}</a>
+        </p>
+        <p>Last updated: {{ complainant.updated_at|date:"M d, Y H:i" }}</p>
     </div>
 </div>
 {% endblock %}

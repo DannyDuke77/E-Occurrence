@@ -22,7 +22,26 @@
     <!-- Ruling Form -->
     <form method="post" class="space-y-4">
         {% csrf_token %}
-        {{ form.as_p }}
+        
+        {% for field in form.visible_fields %}
+            <div class="mb-5">
+                <label class="block mb-1 text-sm text-gray-600">
+                    {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                </label>
+                {{ field }}
+                {% if field.errors %}
+                    <div class="text-red-500 text-xs mt-1 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                        </svg>
+                        <span class="ml-1">{{ field.errors }}</span>
+                    </div>
+                {% endif %}
+                {% if field.help_text %}
+                    <small class="text-gray-500 italic block mt-1">{{ field.help_text }}</small>
+                {% endif %}
+            </div>
+        {% endfor %}
 
         <!-- Actions -->
         <div class="flex items-center gap-3 mt-6">

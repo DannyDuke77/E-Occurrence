@@ -15,6 +15,7 @@ urlpatterns = [
     path('case/suspect/new/<uuid:uuid>/', views.suspect_entry, name='suspect_entry'),
     path('case/republic-court-decision/<uuid:uuid>/', views.court_case_final , name='court_case_final'),
     path("case/<uuid:case_uuid>/suspect/<uuid:suspect_uuid>/", views.suspect_page, name="suspect_page"),
+    path("case/<uuid:case_uuid>/complainant/<uuid:complainant_uuid>/", views.complainant_page, name="complainant_page"),
     path('case/suspect/<uuid:uuid>/court-ruling/', views.suspect_court_ruling_entry, name='suspect_court_ruling_entry'),
     path('case/suspect/<uuid:suspect_uuid>/court-ruling/<uuid:ruling_uuid>/edit/', views.edit_suspect_court_ruling, name='edit_suspect_court_ruling'),
     path("suspects/", views.suspect_list, name="suspect_list"),

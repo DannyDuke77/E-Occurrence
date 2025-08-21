@@ -20,7 +20,7 @@
 <body>
     <div class="max-w-md mx-auto p-8 my-12 bg-white shadow-lg rounded-2xl">
         <h1 class="text-3xl font-bold text-center text-indigo-800 mb-6">E-Occurrence System</h1>
-        <h2 class="text-2xl font-semibold text-center text-gray-800 mb-4">Log In</h2>
+        <h2 class="text-2xl font-bold text-center text-indigo-800 mb-6">Log In</h2>
 
         {% if messages %}
             <div class="space-y-2 mb-6">
@@ -30,6 +30,7 @@
                         {% if message.tags == 'error' %}bg-red-200 text-red-800
                         {% elif message.tags == 'success' %}bg-green-200 text-green-900
                         {% elif message.tags == 'info' %}bg-blue-200 text-blue-900
+                        {% elif message.tags == 'warning' %}bg-yellow-200 text-yellow-900
                         {% else %}bg-gray-200 text-gray-800{% endif %}">
                     {{ message }}
                 </div>

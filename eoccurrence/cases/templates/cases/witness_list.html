@@ -23,7 +23,9 @@
         <tr class="hover:bg-gray-50 transition">
           <!-- Name -->
           <td class="py-4 px-6 font-semibold text-gray-900">
-            {{ witness.name }}
+            {% for case in witness.cases.all %}
+              <a href="{% url 'cases:witness_page' case.uuid witness.uuid %}" class="hover:text-blue-600 hover:underline underline-offset-2 transition">{{ witness.name }}</a>
+            {% endfor %}
           </td>
 
           <!-- ID Number -->

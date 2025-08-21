@@ -3,6 +3,19 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
+{% if messages %}
+    <div class="mb-6">
+      {% for message in messages %}
+        <div class="p-3 rounded-lg shadow-sm text-sm font-semibold
+            {% if message.tags == 'error' %}bg-red-100 text-red-800 border border-red-300
+            {% elif message.tags == 'success' %}bg-green-100 text-green-900 border border-green-300
+            {% else %}bg-gray-100 text-gray-800 border border-gray-300{% endif %}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+  
 <div class="max-w-6xl mx-auto p-6">
 
   <!-- Header -->
@@ -47,33 +60,10 @@
     <!-- Reports -->
     <a href="{% url 'cases:statistics' %}"
        class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
-      <h2 class="text-xl font-semibold mb-2">📊 Reports</h2>
-      <p class="text-gray-600">Generate summaries and case statistics.</p>
+      <h2 class="text-xl font-semibold mb-2">📊 Statistics</h2>
+      <p class="text-gray-600">View case statistics and reports.</p>
     </a>
 
-  </div>
-
-  <!-- Stats Section -->
-  <div class="mt-12 bg-gray-100 p-6 rounded-2xl shadow">
-    <h2 class="text-2xl font-semibold mb-4">Quick Stats</h2>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-      <div>
-        <p class="text-3xl font-bold text-blue-600">{{ total_cases }}</p>
-        <p class="text-gray-600">Cases</p>
-      </div>
-      <div>
-        <p class="text-3xl font-bold text-green-600">{{ total_suspects }}</p>
-        <p class="text-gray-600">Suspects</p>
-      </div>
-      <div>
-        <p class="text-3xl font-bold text-purple-600">{{ total_witnesses }}</p>
-        <p class="text-gray-600">Witnesses</p>
-      </div>
-      <div>
-        <p class="text-3xl font-bold text-red-600">{{ open_cases }}</p>
-        <p class="text-gray-600">Open Cases</p>
-      </div>
-    </div>
   </div>
 
 </div>

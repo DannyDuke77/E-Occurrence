@@ -15,13 +15,7 @@ class Case(models.Model):
         ('in_court', 'In Court'),
         ('closed', 'Closed'),
         ('dismissed', 'Dismissed'),
-    ]
-
-    BAIL_CHOICES = [
-        ('granted', 'Granted'),
-        ('denied', 'Denied'),
-        ('pending', 'Pending'),
-        ('not_applicable', 'Not Applicable'),
+        ('transferred', 'Transferred'),
     ]
 
     CASE_TYPE_CHOICES = [
@@ -102,6 +96,9 @@ class Case(models.Model):
             else:
                 last_number = 1
             self.case_number = f"{today}-{last_number:04d}"
+
+        if self.status == 'closed' and not self.court_date:
+            self.court_date = timezone.now().date()
         super().save(*args, **kwargs)
 
     class Meta:
@@ -109,7 +106,6 @@ class Case(models.Model):
     
     def __str__(self):
         return f"{self.case_number} - {self.title}"
-
 
 class Complainant(models.Model):
     # Basic personal details
@@ -135,6 +131,9 @@ class Complainant(models.Model):
     county = models.CharField(max_length=100, blank=True, null=True)
     sub_county = models.CharField(max_length=100, blank=True, null=True)
 
+    # Statement
+    statement = models.TextField(blank=True, null=True)
+
     # Meta fields
     created_at = models.DateTimeField(auto_now_add=True)  # When record was first created
     updated_at = models.DateTimeField(auto_now=True)      # Last update time
@@ -150,11 +149,18 @@ class Suspect(models.Model):
     ('pending', 'Pending'),
     ('not_applicable', 'Not Applicable'),
     ]
+
+    GENDER_CHOICES = [
+        ('M', 'Male'),
+        ('F', 'Female'),
+        ('O', 'Other'),
+    ]
     
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     name = models.CharField(max_length=255)
     national_id = models.CharField(max_length=20, blank=True, null=True)
     contact_info = models.CharField(max_length=100, blank=True, null=True)
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     
@@ -170,19 +176,33 @@ class Suspect(models.Model):
     )
 
     charges = models.TextField(blank=True, null=True)
+
     def __str__(self):
         return self.name
 
 
 class Witness(models.Model):
+    GENDER_CHOICES = [
+        ('M', 'Male'),
+        ('F', 'Female'),
+        ('O', 'Other'),
+    ]
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     name = models.CharField(max_length=255)
     national_id = models.CharField(max_length=20, blank=True, null=True)
     contact_info = models.CharField(max_length=100, blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     date_of_statement = models.DateField(auto_now_add=True)
     statement = models.TextField(blank=True, null=True)
+
+    recorded_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name='witnesses_recorded'
+    )
+    # Meta fields
+    created_at = models.DateTimeField(auto_now_add=True)  # When record was first created
+    updated_at = models.DateTimeField(auto_now=True)      # Last update time
 
     def __str__(self):
         return self.name

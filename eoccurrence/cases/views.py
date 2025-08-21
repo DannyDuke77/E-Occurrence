@@ -11,11 +11,13 @@ from django.core.paginator import Paginator
 from .forms import ComplainantForm, CaseForm, WitnessForm,  SuspectForm, CourtDecisionForm, SuspectCourtRulingForm
 from .models import Complainant, Case, Suspect, Witness, CourtDecision, SuspectCourtRuling
 
+from accounts.decorators import login_required_with_message
+
 from accounts.models import Userprofile
 
 from .forms import CaseForm
 
-@login_required
+@login_required_with_message
 def complainant_entry(request):
     if request.method == 'POST':
         form = ComplainantForm(request.POST)
@@ -27,8 +29,7 @@ def complainant_entry(request):
 
     return render(request, 'cases/complainant_entry.html', {'form': form})
 
-
-@login_required
+@login_required_with_message
 def case_entry(request, uuid):
     complainant = get_object_or_404(Complainant, uuid=uuid)
     form_title = f"New Case for {complainant.first_name} {complainant.last_name}"
@@ -45,7 +46,7 @@ def case_entry(request, uuid):
                 name += f" {complainant.last_name}"
 
             messages.success(request, f"Case {case.case_number} created successfully for {name}.")
-            return redirect("/")  # or any success page
+            return redirect("cases:case_details", uuid=case.uuid)  # or any success page
     else:
         form = CaseForm()
 
@@ -73,13 +74,15 @@ def view_cases(request):
         'total_results': total_results,  # pass count to template
     })
 
+@login_required_with_message
 def edit_case(request, uuid):
+    user = request.user
     case = get_object_or_404(Case, uuid=uuid)
     form_title = f"Edit Case #{ case.case_number }"
     complainant = case.complainant
 
     if request.method == 'POST':
-        form = CaseForm(request.POST, instance=case)
+        form = CaseForm(request.POST, instance=case, user=user)
         if form.is_valid():
             form.save()
             messages.success(request, f"Case {case.case_number} updated successfully.")
@@ -94,20 +97,21 @@ def edit_case(request, uuid):
         'complainant': complainant
     })
 
+@login_required_with_message
 def case_details(request, uuid):
-    if request.user.is_authenticated:
-        case = get_object_or_404(Case, uuid=uuid)
-        witnesses = case.witnesses.all()
-        suspects = case.suspects.all()
-        
-        return render(request, "cases/case_details.html", {
-            "case": case,
-            "witnesses": witnesses,
-            "suspects": suspects,
-        })
-    else:
-        messages.error(request, "You need to be logged in to view case details.")
-        return redirect('accounts:login')
+
+    case = get_object_or_404(Case, uuid=uuid)
+    witnesses = case.witnesses.all()
+    suspects = case.suspects.all()
+    court_decisions = case.court_decisions.all().order_by('decision_date')
+    
+    return render(request, "cases/case_details.html", {
+        "case": case,
+        "witnesses": witnesses,
+        "suspects": suspects,
+        "court_decisions": court_decisions
+    })
+
     
 def search_cases(request):
     query = request.GET.get('query', '').strip()
@@ -152,7 +156,7 @@ def search_cases(request):
         'total_results': total_results,
     })
 
-@login_required
+@login_required_with_message
 def witness_entry(request, uuid):
     case = get_object_or_404(Case, uuid=uuid)
 
@@ -172,7 +176,7 @@ def witness_entry(request, uuid):
 
     return render(request, 'cases/witness_entry.html', {'form': form, 'case': case})
 
-@login_required
+@login_required_with_message
 def suspect_entry(request, uuid):
     case = get_object_or_404(Case, uuid=uuid)
 
@@ -192,12 +196,18 @@ def suspect_entry(request, uuid):
 
     return render(request, 'cases/suspect_entry.html', {'form': form, 'case': case})
 
+@login_required_with_message
 def court_case_final(request, uuid):
     case = get_object_or_404(Case, uuid=uuid)
+    user = request.user
     form_title = f"Court Decision for Case #{case.case_number}"
 
+    if user.is_authenticated and user.profile.user_role not in ['admin', 'court']:
+        messages.error(request, "You do not have permission to record a court decision.")
+        return redirect('cases:case_details', uuid=case.uuid)
+
     if case.status not in ['pending', 'open', 'in_court']:
-        messages.error(request, "Court decision can only be recorded for pending or open cases.")
+        messages.error(request, "Court decision can only be recorded for in_court or open cases.")
         return redirect('cases:case_details', uuid=case.uuid)
     
 
@@ -210,21 +220,6 @@ def court_case_final(request, uuid):
             decision.recorded_by = request.user
             decision.save()
 
-            if decision.decision_type == 'BAIL_GRANTED':
-                case.bail_decision = 'granted'
-                case.status = 'in_court'
-                case.save()
-            
-            if decision.decision_type == 'DISMISSED':
-                case.bail_decision = 'not_applicable'
-                case.status = 'dismissed'
-                case.save()
-            
-            if decision.decision_type == 'SENTENCED':
-                case.bail_decision = 'not_applicable'
-                case.status = 'closed'
-                case.save()
-
             messages.success(request, "Court decision recorded successfully.")
             return redirect('cases:case_details', uuid=case.uuid)
     else:
@@ -236,48 +231,44 @@ def court_case_final(request, uuid):
         'form_title': form_title
         })
 
-def court_suspect_ruling(request, uuid):
-    case = get_object_or_404(Case, uuid=uuid)
-    form_title = f"Suspect Ruling for Case #{case.case_number}"
-
-    if request.method == 'POST':
-        form = CourtDecisionForm(request.POST)
-        if form.is_valid():
-            ruling = form.save(commit=False)
-            ruling.case = case
-            ruling.recorded_by = request.user
-            ruling.save()
-
-            messages.success(request, "Court ruling recorded successfully.")
-            return redirect('cases:case_details', uuid=case.uuid)
-    else:
-        form = CourtDecisionForm()
-
-    return render(request, 'cases/court_ruling.html', {
-        'form': form, 
-        'case': case,
-        'form_title': form_title
-    })
-
-@login_required
+@login_required_with_message
 def suspect_page(request, case_uuid, suspect_uuid):
     case = get_object_or_404(Case, uuid=case_uuid)
     suspect = get_object_or_404(Suspect, uuid=suspect_uuid, cases=case)
 
-    rulings = suspect.rulings.select_related("case").order_by("-recorded_at")
+    rulings = suspect.rulings.select_related("case").order_by("recorded_at")
     return render(request, "cases/suspect_page.html", {
         "case": case,
         "suspect": suspect,
         "rulings": rulings
     })
 
+@login_required_with_message
+def complainant_page(request, case_uuid, complainant_uuid):
+    case = get_object_or_404(Case, uuid=case_uuid)
+    complainant = get_object_or_404(Complainant, uuid=complainant_uuid)
 
-@login_required
+    return render(request, "cases/complainant_page.html", {
+        "case": case,
+        "complainant": complainant,
+    })
+
+@login_required_with_message
 def suspect_court_ruling_entry(request, uuid):
+    user = request.user
     suspect = get_object_or_404(Suspect, uuid=uuid)
     form_title = f"New Court Ruling for Suspect { suspect.name }"
     case = suspect.cases.first()  # Assuming suspect is linked to at least one case
 
+    if user.is_authenticated and user.profile.user_role not in ['admin', 'court']:
+        messages.error(request, "You do not have permission to record a court decision.")
+        return redirect("cases:suspect_page", case_uuid=case.uuid, suspect_uuid=suspect.uuid)
+
+
+    if case.status not in ['pending', 'open', 'in_court']:
+        messages.error(request, "Court ruling can only be recorded for in_court or open cases.")
+        return redirect("cases:suspect_page", case_uuid=case.uuid, suspect_uuid=suspect.uuid)
+    
     if request.method == "POST":
         form = SuspectCourtRulingForm(request.POST)
         if form.is_valid():
@@ -301,6 +292,7 @@ def suspect_court_ruling_entry(request, uuid):
         "form_title": form_title
     })
 
+@login_required_with_message
 def edit_suspect_court_ruling(request, suspect_uuid, ruling_uuid):
     case = get_object_or_404(Case, suspects__uuid=suspect_uuid)
     form_title = f"Edit Court Ruling for Suspect {{ suspect.name }}"
@@ -323,6 +315,7 @@ def edit_suspect_court_ruling(request, suspect_uuid, ruling_uuid):
         "form_title": form_title
     })
 
+@login_required_with_message
 def witness_page(request, case_uuid, witness_uuid):
     case = get_object_or_404(Case, uuid=case_uuid)
     witness = get_object_or_404(Witness, uuid=witness_uuid)
@@ -332,6 +325,7 @@ def witness_page(request, case_uuid, witness_uuid):
         "witness": witness
     })
 
+@login_required_with_message
 def suspect_list(request):
     suspects = Suspect.objects.all().order_by("-statement_date")  # newest first
     paginator = Paginator(suspects, 10)  # 10 per page
@@ -341,7 +335,7 @@ def suspect_list(request):
 
     return render(request, "cases/suspect_list.html", {"page_obj": page_obj})
 
-
+@login_required_with_message
 def witness_list(request):
     witnesses = Witness.objects.all().order_by("-date_of_statement")
     paginator = Paginator(witnesses, 10)

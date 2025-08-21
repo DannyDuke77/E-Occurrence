@@ -7,11 +7,6 @@
     <h2 class="text-3xl font-bold text-center text-indigo-800 mb-6">New Complainant</h2>
 
     <form method="post" class="">
-        {% if form.errors %}
-            <div class="bg-red-100 text-red-600 text-sm p-4 rounded mb-4">
-                {{ form.errors }}
-            </div>
-        {% endif %}
 
         {% csrf_token %}
 
@@ -21,6 +16,15 @@
                     {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
                 </label>
                 {{ field }}
+                {% if field.errors %}
+                    <div class="text-red-500 text-xs mt-1 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
+                        </svg>
+                        <span class="ml-1">{{ field.errors }}</span>
+                    </div>
+                {% endif %}
+                
                 {% if field.help_text %}
                     <small class="text-gray-500 italic block mt-1">{{ field.help_text }}</small>
                 {% endif %}

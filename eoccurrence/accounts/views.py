@@ -1,17 +1,17 @@
 from django.shortcuts import render
 from django.contrib.auth import login, logout
 from django.shortcuts import redirect
-from .forms import loginForm
-
+from django.utils import timezone
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
+
+
 from .decorators import login_required_with_message
 
 from .models import Userprofile
 
-
-from .forms import CustomUserCreationForm
+from .forms import loginForm, CustomUserCreationForm
 
 # Create your views here.
 @login_required_with_message
@@ -33,17 +33,23 @@ def create_user(request):
 def login_view(request):
     if request.method == 'POST':
         form = loginForm(request, data=request.POST)
+        remember_me = request.POST.get("remember_me") == "on"
+
         if form.is_valid():
             user = form.get_user()
             login(request, user)
             messages.success(request, f"Welcome back, {user.first_name or user.username}!")
-            return redirect('/')  # Homepage
+
+            if remember_me:
+                request.session.set_expiry(60 * 60 * 24 * 7)  # 7 days
+            else:
+                request.session.set_expiry(30 * 60)  # 30 minutes
+
+            return redirect('core:dashboard')
     else:
         form = loginForm()
-    
-    return render(request, 'accounts/login.html', 
-                  {'form': form}
-                  )
+
+    return render(request, 'accounts/login.html', {'form': form})
 
 def logout_view(request):
     logout(request)

@@ -27,9 +27,19 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Authentication
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+SESSION_COOKIE_AGE = 30 * 60  # 30 minutes
+SESSION_SAVE_EVERY_REQUEST = True  # Reset timeout on every request
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Allows Remember Me to persist sessions
+
+# Secure cookies (for production)
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
 
 # Application definition
 
@@ -53,6 +63,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'accounts.middleware.ActiveUserMiddleware',
 ]
 
 ROOT_URLCONF = 'eoccurrence.urls'

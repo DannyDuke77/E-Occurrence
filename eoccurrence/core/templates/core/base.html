@@ -19,9 +19,12 @@
   </head>
   <body class="bg-gray-100">
     <div class="flex">
-      <aside id="sidebar" class="w-64 bg-gray-800 text-white h-screen fixed flex flex-col overflow-hidden p-4 z-50 border-r-4 border-gray-600">
+      <!-- Sidebar -->
+      <aside id="sidebar" 
+        class="w-80 md:w-64 bg-gray-800 text-white h-screen fixed flex flex-col overflow-y-auto p-4 z-50 border-r-4 border-gray-600 
+               transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
         <div class="flex-shrink-0">
-        <!-- Logo and title -->
+          <!-- Logo and title -->
           <div class="flex justify-between items-center border-b border-gray-700 pb-2">
             <a href="/" class="text-2xl font-bold text-white flex items-center space-x-2">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
@@ -29,75 +32,139 @@
                 <path d="m12 5.432 8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.625a1.875 1.875 0 0 1-1.875-1.875v-6.198a2.29 2.29 0 0 0 .091-.086L12 5.432Z" />
               </svg>
               <p class="">e-Occurrence</p></a>
+              
+            <!-- Close button (mobile only) -->
+            <button id="closeSidebar" class="md:hidden text-gray-400 hover:text-white">
+              <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-layout-sidebar-right-expand">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                <path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" />
+                <path d="M15 4v16" /><path d="M10 10l-2 2l2 2" />
+              </svg>
+            </button>
           </div>
-        <!-- Navigation links -->
+          <!-- Navigation links -->
           <nav class="space-y-2 mt-4">
-            <!-- Links visible to everyone -->
-             <a href="/" class="block px-4 py-2 rounded hover:bg-gray-700">Home</a>
-            <a href="{% url 'cases:view_cases' %}" class="block px-4 py-2 rounded hover:bg-gray-700">View Cases</a>
+            <a href="/" class="block px-4 py-2 rounded hover:bg-gray-700">Home</a>
+            <a href="{% url 'core:dashboard' %}" class="block px-4 py-2 rounded hover:bg-gray-700">Dashboard</a>
+            <a href="{% url 'cases:view_cases' %}" class="block px-4 py-2 rounded hover:bg-gray-700">View & Search Cases</a>
 
             {% if user.is_authenticated %}
-                <a href="{% url 'accounts:profile_view' user.profile.uuid %}" class="block px-4 py-2 rounded hover:bg-gray-700">Profile</a>
+              <a href="{% url 'accounts:profile_view' user.profile.uuid %}" class="block px-4 py-2 rounded hover:bg-gray-700">Profile</a>
             {% endif %}
 
-            <!-- Police links (admins also see these) -->
             {% if user.is_authenticated and user.profile.user_role == 'police' or user.profile.user_role == 'admin' %}
-                <a href="{% url 'cases:complainant_entry' %}" class="block px-4 py-2 rounded hover:bg-gray-700">New Entry</a>
-                <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">Bail Decisions</a>
+              <a href="{% url 'cases:complainant_entry' %}" class="block px-4 py-2 rounded hover:bg-gray-700">New Entry</a>
+              <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">Bail Decisions</a>
             {% endif %}
 
-            <!-- Court links (admins also see these) -->
             {% if user.is_authenticated and user.profile.user_role == 'court' or user.profile.user_role == 'admin' %}
-                <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">Court Updates</a>
-                <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">Reports</a>
-                <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">Help</a>
+              <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">Court Updates</a>
+              <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">Reports</a>
             {% endif %}
 
-            <!-- Admin-only links -->
             {% if user.is_authenticated and user.profile.user_role == 'admin' %}
-                <a href="{% url 'admin:index' %}" class="block px-4 py-2 rounded hover:bg-gray-700" target="_blank">Admin Panel</a>
-                <a href="{% url 'accounts:create_user' %}" class="block px-4 py-2 rounded hover:bg-gray-700">Add User</a>
+              <a href="{% url 'core:admin_dashboard' %}" class="block px-4 py-2 rounded hover:bg-gray-700" target="_blank">Admin Dashboard</a>
+              <a href="{% url 'accounts:create_user' %}" class="block px-4 py-2 rounded hover:bg-gray-700">Add User</a>
             {% endif %}
-    
-            <a href="{% url 'core:terms_of_use' %}" class="block px-4 py-2 rounded hover:bg-gray-700">Terms of Use</a>
-          </nav>
+            <a href="{% url 'core:help_support' %}" class="block px-4 py-2 rounded hover:bg-gray-700">Help & Support</a>
 
+          </nav>
         </div>
 
-      <!-- Logout button to appear at the bottom of the sidebar -->
+        <!-- Logout -->
         <div class="mt-auto border-t border-gray-700 pt-4">
           {% if user.is_authenticated %}
-              <p class="text-sm mb-2 text-gray-300">Logged in as: <span class="font-bold text-white">{% firstof user.get_full_name user.username %}</span></p>
-              <p class="text-sm mb-4 text-gray-300">Role: <span class="font-bold text-white">{{ user.profile.user_role }}</span></p>
+            <p class="text-sm mb-2 text-gray-300">Logged in as: <span class="font-bold text-white">{% firstof user.get_full_name user.username %}</span></p>
+            <p class="text-sm mb-4 text-gray-300">Role: <span class="font-bold text-white">{{ user.profile.user_role }}</span></p>
 
-              <div class="text-center">
-                <a href="{% url 'accounts:logout' %}" class="block px-4 py-2 bg-red-600 rounded hover:bg-red-700">Logout</a>
-              </div>
+            <div class="text-center">
+              <a href="{% url 'accounts:logout' %}" class="block px-4 py-2 bg-red-600 rounded hover:bg-red-700">Logout</a>
+            </div>
           {% else %}
-              <p class="text-sm mb-2 text-gray-400">You are not logged in.</p>
-
-              <div class="text-center">
-                <a href="{% url 'accounts:login' %}" class="block px-4 py-2 text-center bg-blue-600 rounded hover:bg-blue-700">Login</a>
-              </div>
+            <p class="text-sm mb-2 text-gray-400">You are not logged in.</p>
+            <div class="text-center">
+              <a href="{% url 'accounts:login' %}" class="block px-4 py-2 text-center bg-blue-600 rounded hover:bg-blue-700">Login</a>
+            </div>
           {% endif %}
         </div>
       </aside>
 
-      <div class="flex-1 ml-64 flex flex-col min-h-screen">
-        <main class="flex-1 overflow-y-auto p-4 mt-6">
-        {% block content %}
-        
-        {% endblock %}
+      <!-- Overlay for mobile -->
+      <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
+
+      <div class="flex-1 md:ml-64 flex flex-col">
+        <!-- Mobile navbar -->
+        <header class="bg-white shadow-md p-4 flex items-center md:hidden">
+          <button id="openSidebar" class="text-gray-700 mr-3 text-xl font-bold">
+            ☰
+          </button>
+          <h1 class="text-lg font-semibold">E-Occurrence</h1>
+        </header>
+
+        <!-- Main content -->
+        <main class="flex-1 overflow-y-auto p-4 mt-6 min-h-screen">
+          {% block content %}
+          {% endblock %}
         </main>
 
-        <footer class="bg-gray-800 text-gray-300 py-6 mt-10">
-          <div class="max-w-7xl mx-auto px-6 text-center space-y-2">
-            <p>&copy; 2025 e-Occurrence System</p>
-            <p>Contact: info@eoccurrence.ke | Terms & Privacy Policy</p>
+        <!-- Footer -->
+        <footer class="bg-gray-800 text-gray-300 py-10 mt-12">
+          <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <h3 class="text-lg font-semibold text-white mb-3">e-Occurrence System</h3>
+              <p class="text-sm text-gray-400 leading-relaxed">
+                A digital Police Occurrence Book (OB) and Case Progress System for integrated justice, 
+                ensuring transparency, accountability, and efficient case tracking.
+              </p>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-white mb-3">Quick Links</h3>
+              <ul class="text-sm space-y-2 list-disc list-inside space-y-1 text-gray-300">
+                <li><a href="{% url 'core:terms_of_use' %}" class="hover:text-white transition">Terms of Use</a></li>
+                <li><a href="{% url 'core:privacy_policy' %}" class="hover:text-white transition">Privacy Policy</a></li>
+                <li><a href="{% url 'core:help_support' %}" class="hover:text-white transition">Help & Support</a></li>
+                <li><a href="{% url 'core:faq' %}" class="hover:text-white transition">FAQs</a></li>
+              </ul>
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-white mb-3">Contact Us</h3>
+              <ul class="space-y-2 text-sm">
+                <li>Email: <a href="mailto:info@eoccurrence.ke" class="hover:text-white">info@eoccurrence.ke</a></li>
+                <li>Phone: +254 700 123 456</li>
+                <li>Location: Nairobi, Kenya</li>
+              </ul>
+            </div>
+          </div>
+          <div class="border-t border-gray-700 mt-8 pt-4 text-center text-xs text-gray-500">
+            <p class="text-gray-400">Promoting transparency, accountability, and access to justice</p>
+            <p class="mt-4 text-gray-500 text-sm">&copy; 2025 e-Occurrence. All rights reserved.</p>
           </div>
         </footer>
       </div>
     </div>
-    
+
+    {% block scripts %}
+    <script>
+      const sidebar = document.getElementById('sidebar');
+      const openSidebar = document.getElementById('openSidebar');
+      const closeSidebar = document.getElementById('closeSidebar');
+      const overlay = document.getElementById('overlay');
+
+      openSidebar?.addEventListener('click', () => {
+        sidebar.classList.remove('-translate-x-full');
+        overlay.classList.remove('hidden');
+      });
+
+      closeSidebar?.addEventListener('click', () => {
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+      });
+
+      overlay?.addEventListener('click', () => {
+        sidebar.classList.add('-translate-x-full');
+        overlay.classList.add('hidden');
+      });
+    </script>
+    {% endblock %}
   </body>
 </html>

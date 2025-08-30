@@ -25,5 +25,7 @@ class Userprofile(models.Model):
     date_joined = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
 
+    last_activity = models.DateTimeField(null=True, blank=True)
+
     def __str__(self):
         return f"{self.user.username} - ({self.user_role})"

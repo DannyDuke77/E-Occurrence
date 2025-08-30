@@ -45,7 +45,7 @@
                 </span>
             </p>
             <p><strong>Department:</strong> {{ profile.department|default:"Not provided" }}</p>
-            <p><strong>Status:</strong> 
+            <p><strong>Account Status:</strong> 
                 <span class="inline-block px-2 py-1 rounded-full text-sm font-semibold 
                     {% if profile.is_active %}bg-green-500 text-white
                     {% else %}bg-red-500 text-white{% endif %}">
@@ -53,11 +53,16 @@
                 </span>
             </p>
             <p><strong>Last Login:</strong> 
-                {% if profile.user.last_login %}
-                    {{ profile.user.last_login|date:"F j, Y - g:i a" }}
+                {% if profile.last_activity %}
+                    <span 
+                        class="last-login-time text-gray-600"
+                        data-timestamp="{{ profile.last_activity|date:'c' }}">
+                    </span>
                 {% else %}
-                    Never
+                    <span class="text-gray-600">Never</span>
                 {% endif %}
+
+
             </p>
         </div>
     </div>
@@ -70,4 +75,50 @@
         </a>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        const ONLINE_THRESHOLD_MIN = 10; // minutes to consider user online
+
+        function formatTimeAgo(date) {
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMin = Math.floor(diffMs / 60000); // minutes
+            const diffHr = Math.floor(diffMin / 60);
+
+            // ✅ Online if active in last 10 mins
+            if (diffMin < ONLINE_THRESHOLD_MIN) {
+                return "🟢 Online";
+            }
+
+            if (diffHr < 24) {
+                // Less than 24 hours → "X hrs Y mins ago"
+                const hrs = diffHr;
+                const mins = diffMin % 60;
+                if (hrs > 0) return `${hrs} hr${hrs > 1 ? 's' : ''} ${mins} min${mins !== 1 ? 's' : ''} ago`;
+                return `${mins} min${mins !== 1 ? 's' : ''} ago`;
+            } else if (diffHr < 48) {
+                // Yesterday → "Yesterday at HH:MM"
+                return `Yesterday at ${date.getHours().toString().padStart(2,"0")}:${date.getMinutes().toString().padStart(2,"0")}`;
+            } else {
+                // Older → show date
+                return date.toLocaleDateString() + ", " + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            }
+        }
+
+        function updateLastLoginTimes() {
+            document.querySelectorAll(".last-login-time").forEach(el => {
+                const ts = el.dataset.timestamp;
+                if (!ts) return;
+                const date = new Date(ts);
+                el.textContent = formatTimeAgo(date);
+            });
+        }
+
+        // Run immediately and refresh every 1 minute
+        updateLastLoginTimes();
+        setInterval(updateLastLoginTimes, 60000);
+    </script>
+
 {% endblock %}

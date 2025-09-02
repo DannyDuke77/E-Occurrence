@@ -25,4 +25,6 @@ urlpatterns = [
     path('', include('core.urls')),  # Include the core app's URLs
     path('accounts/', include('accounts.urls')),  # Include the accounts app's URLs
     path('cases/', include('cases.urls')),  # Include the cases app's URLs
+
+    path("", include("pwa.urls")), # PWA support
 ]

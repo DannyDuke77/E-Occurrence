@@ -1,9 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 
 from django.contrib.auth.decorators import user_passes_test
 
 from django.contrib.auth.models import User
 from django.contrib import messages
+
+from django.core.paginator import Paginator
 
 from .models import SupportRequest
 
@@ -85,3 +87,17 @@ def admin_dashboard(request):
 
     return render(request, "core/admin_dashboard.html", context)
 
+def support_requests_list(request):
+    requests = SupportRequest.objects.all().order_by('-created_at')
+    
+    # Paginate — display 10 per page
+    paginator = Paginator(requests, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'core/support_requests_list.html', {'page_obj': page_obj})
+
+def support_request_detail(request, uuid):
+    req = get_object_or_404(SupportRequest, uuid=uuid)
+
+    return render(request, 'core/support_request_detail.html', {'req': req})

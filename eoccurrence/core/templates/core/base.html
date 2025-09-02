@@ -1,10 +1,23 @@
 <!doctype html>
+  {% load pwa %}
+  {% load static %}
 <html>
   <head>
+    {% progressive_web_app_meta %}
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <!-- Browser favicon -->
+    <link rel="icon" type="image/png" href="{% static 'icons/icon-192x192.png' %}" />
+
+    <!-- Apple touch icon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'icons/icon-180x180.png' %}">
+
+    <!-- PWA meta tags -->
+    {% progressive_web_app_meta %}
+
     <title>{% block title %}{% endblock %} | E-Occurrence</title>
     <style type="text/tailwindcss">
         body {
@@ -43,30 +56,30 @@
             </button>
           </div>
           <!-- Navigation links -->
-          <nav class="space-y-2 mt-4">
-            <a href="/" class="block px-4 py-2 rounded hover:bg-gray-700">Home</a>
-            <a href="{% url 'core:dashboard' %}" class="block px-4 py-2 rounded hover:bg-gray-700">Dashboard</a>
-            <a href="{% url 'cases:view_cases' %}" class="block px-4 py-2 rounded hover:bg-gray-700">View & Search Cases</a>
+          <nav class="mt-4 divide-y divide-gray-600">
+            <a href="/" class="block px-4 py-4 rounded hover:bg-gray-700">Home</a>
+            <a href="{% url 'core:dashboard' %}" class="block px-4 py-4 rounded hover:bg-gray-700">Dashboard</a>
+            <a href="{% url 'cases:view_cases' %}" class="block px-4 py-4 rounded hover:bg-gray-700">View & Search Cases</a>
 
             {% if user.is_authenticated %}
-              <a href="{% url 'accounts:profile_view' user.profile.uuid %}" class="block px-4 py-2 rounded hover:bg-gray-700">Profile</a>
+              <a href="{% url 'accounts:profile_view' user.profile.uuid %}" class="block px-4 py-4 rounded hover:bg-gray-700">Profile</a>
             {% endif %}
 
             {% if user.is_authenticated and user.profile.user_role == 'police' or user.profile.user_role == 'admin' %}
-              <a href="{% url 'cases:complainant_entry' %}" class="block px-4 py-2 rounded hover:bg-gray-700">New Entry</a>
-              <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">Bail Decisions</a>
+              <a href="{% url 'cases:complainant_entry' %}" class="block px-4 py-4 rounded hover:bg-gray-700">New Entry</a>
+              <a href="#" class="block px-4 py-4 rounded hover:bg-gray-700">Bail Decisions</a>
             {% endif %}
 
             {% if user.is_authenticated and user.profile.user_role == 'court' or user.profile.user_role == 'admin' %}
-              <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">Court Updates</a>
-              <a href="#" class="block px-4 py-2 rounded hover:bg-gray-700">Reports</a>
+              <a href="#" class="block px-4 py-4 rounded hover:bg-gray-700">Court Updates</a>
+              <a href="#" class="block px-4 py-4 rounded hover:bg-gray-700">Reports</a>
             {% endif %}
 
             {% if user.is_authenticated and user.profile.user_role == 'admin' %}
-              <a href="{% url 'core:admin_dashboard' %}" class="block px-4 py-2 rounded hover:bg-gray-700" target="_blank">Admin Dashboard</a>
-              <a href="{% url 'accounts:create_user' %}" class="block px-4 py-2 rounded hover:bg-gray-700">Add User</a>
+              <a href="{% url 'core:admin_dashboard' %}" class="block px-4 py-4 rounded hover:bg-gray-700">Admin Dashboard</a>
+              <a href="{% url 'accounts:create_user' %}" class="block px-4 py-4 rounded hover:bg-gray-700">Add User</a>
             {% endif %}
-            <a href="{% url 'core:help_support' %}" class="block px-4 py-2 rounded hover:bg-gray-700">Help & Support</a>
+            <a href="{% url 'core:help_support' %}" class="block px-4 py-4 rounded hover:bg-gray-700">Help & Support</a>
 
           </nav>
         </div>
@@ -95,7 +108,7 @@
       <div class="flex-1 md:ml-64 flex flex-col">
         <!-- Mobile navbar -->
         <header class="bg-white shadow-md p-4 flex items-center md:hidden">
-          <button id="openSidebar" class="text-gray-700 mr-3 text-xl font-bold">
+          <button id="openSidebar" class="text-gray-700 mr-3 text-2xl font-bold">
             ☰
           </button>
           <h1 class="text-lg font-semibold">E-Occurrence</h1>
@@ -117,22 +130,27 @@
                 ensuring transparency, accountability, and efficient case tracking.
               </p>
             </div>
-            <div>
-              <h3 class="text-lg font-semibold text-white mb-3">Quick Links</h3>
-              <ul class="text-sm space-y-2 list-disc list-inside space-y-1 text-gray-300">
-                <li><a href="{% url 'core:terms_of_use' %}" class="hover:text-white transition">Terms of Use</a></li>
-                <li><a href="{% url 'core:privacy_policy' %}" class="hover:text-white transition">Privacy Policy</a></li>
-                <li><a href="{% url 'core:help_support' %}" class="hover:text-white transition">Help & Support</a></li>
-                <li><a href="{% url 'core:faq' %}" class="hover:text-white transition">FAQs</a></li>
-              </ul>
-            </div>
-            <div>
-              <h3 class="text-lg font-semibold text-white mb-3">Contact Us</h3>
-              <ul class="space-y-2 text-sm">
-                <li>Email: <a href="mailto:info@eoccurrence.ke" class="hover:text-white">info@eoccurrence.ke</a></li>
-                <li>Phone: +254 700 123 456</li>
-                <li>Location: Nairobi, Kenya</li>
-              </ul>
+
+            <div class="grid grid-cols-2 gap-8">
+              <div>
+                <h3 class="text-lg font-semibold text-white mb-3">Quick Links</h3>
+                <ul class="text-sm space-y-2 list-disc list-inside space-y-1 text-gray-300">
+                  <li><a href="{% url 'core:terms_of_use' %}" class="hover:text-white transition">Terms of Use</a></li>
+                  <li><a href="{% url 'core:privacy_policy' %}" class="hover:text-white transition">Privacy Policy</a></li>
+                  <li><a href="{% url 'core:help_support' %}" class="hover:text-white transition">Help & Support</a></li>
+                  <li><a href="{% url 'core:faq' %}" class="hover:text-white transition">FAQs</a></li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-semibold text-white mb-3">Contact Us</h3>
+                <ul class="space-y-2 text-sm">
+                  <li>Email: <a href="mailto:info@eoccurrence.ke" class="hover:text-white">info@eoccurrence.ke</a></li>
+                  <li>Phone: +254 700 123 456</li>
+                  <li>Location: Nairobi, Kenya</li>
+                </ul>
+              </div>
+
             </div>
           </div>
           <div class="border-t border-gray-700 mt-8 pt-4 text-center text-xs text-gray-500">

@@ -1,0 +1,55 @@
+{% extends "core/base.html" %}
+
+{% block title %}Support Request Details{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-6 py-10">
+    <!-- Page Title -->
+    <h1 class="text-3xl font-bold mb-8 text-gray-800 tracking-tight">Support Request Details</h1>
+
+    <!-- Card -->
+    <div class="bg-white shadow-md rounded-2xl p-8 border border-gray-200">
+        
+        <!-- Header Info -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-900">
+                    {{ req.name }}
+                    {% if req.email %}
+                        <span class="text-gray-500 text-sm font-normal block">{{ req.email }}</span>
+                    {% endif %}
+                </h2>
+                <p class="text-sm text-gray-500 mt-1">
+                    Submitted on {{ req.created_at|date:"M d, Y • H:i" }}
+                </p>
+            </div>
+            <span class="px-4 py-1.5 rounded-full text-xs font-medium tracking-wide
+                {% if req.status == 'pending' %} bg-yellow-100 text-yellow-800
+                {% elif req.status == 'resolved' %} bg-green-100 text-green-700
+                {% endif %}">
+                {{ req.status|title }}
+            </span>
+        </div>
+
+        <!-- Message -->
+        <div class="mt-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Message</h3>
+            <p class="text-gray-700 leading-relaxed whitespace-pre-line">
+                {{ req.message }}
+            </p>
+        </div>
+
+        <!-- Back Button -->
+        <div class="mt-10">
+            <a href="{% url 'core:support_requests_list' %}"
+               class="inline-flex items-center px-4 py-2 rounded-lg border border-gray-300 bg-gray-50 text-gray-700 text-sm font-medium hover:bg-gray-100 hover:text-gray-900 transition"
+               onclick="window.history.back(); return false;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

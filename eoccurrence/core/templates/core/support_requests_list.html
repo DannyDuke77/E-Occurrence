@@ -1,0 +1,92 @@
+{% extends "core/base.html" %}
+
+{% block title %}Support Requests{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-10">
+    <!-- Page Title -->
+    <h1 class="text-4xl font-bold mb-10 text-gray-800 tracking-tight">Support Requests</h1>
+
+    <!-- Requests Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for req in page_obj %}
+        <div class="bg-white border rounded-2xl shadow-sm hover:shadow-lg transition-shadow duration-300 p-6 flex flex-col justify-between">
+            <!-- Header -->
+            <div class="">
+                <div>
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-lg font-semibold text-gray-900">
+                            {{ req.name }}
+                            
+                        </h2>
+                        <span class="px-3 py-1 rounded-full text-xs font-medium tracking-wide
+                            {% if req.status == 'pending' %} bg-yellow-100 text-yellow-800
+                            {% elif req.status == 'resolved' %} bg-green-100 text-green-700
+                            {% endif %}">
+                            {{ req.status|title }}
+                        </span>
+                    </div>
+                    {% if req.email %}
+                        <span class="text-gray-500 text-sm font-normal block">{{ req.email }}</span>
+                    {% endif %}
+                    <p class="text-xs text-gray-500 mt-1">
+                        {{ req.created_at|date:"M d, Y • H:i" }}
+                    </p>
+                </div>
+                
+            </div>
+
+            <!-- Message Preview -->
+            <p class="mt-4 text-gray-700 text-sm line-clamp-3 leading-relaxed">
+                {{ req.message }}
+            </p>
+
+            <!-- Footer -->
+            <div class="mt-6">
+                <a href="{% url 'core:support_request_detail' req.uuid %}" 
+                   class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors duration-200">
+                    View details
+                    <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-12">
+            <p class="text-gray-500 text-lg">No support requests yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="mt-10 flex justify-center space-x-2">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}" 
+           class="px-4 py-2 rounded-lg border bg-white text-gray-700 hover:bg-gray-100 transition">
+           ← Prev
+        </a>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <span class="px-4 py-2 rounded-lg bg-blue-600 text-white font-medium">{{ num }}</span>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <a href="?page={{ num }}" 
+               class="px-4 py-2 rounded-lg border bg-white text-gray-700 hover:bg-gray-100 transition">
+               {{ num }}
+            </a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" 
+           class="px-4 py-2 rounded-lg border bg-white text-gray-700 hover:bg-gray-100 transition">
+           Next →
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

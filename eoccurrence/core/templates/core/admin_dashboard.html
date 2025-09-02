@@ -57,11 +57,15 @@
 
         <!-- Recent support requests -->
         <div class="bg-white rounded-xl shadow p-6">
-            <h2 class="text-lg font-semibold mb-4">Recent Support Requests</h2>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold mb-4">Recent Support Requests</h2>
+                <a href="{% url 'core:support_requests_list' %}" class="text-sm font-medium text-indigo-600 hover:underline">View all</a>
+            </div>
             <ul class="divide-y divide-gray-200">
                 {% for req in recent_support %}
                 <li class="py-2">
-                    <span class="flex items-center justify-between font-medium text-gray-800">{{ req.message|truncatechars:50 }}
+                    <a href="{% url 'core:support_request_detail' req.uuid %}" class="flex items-center justify-between font-medium text-blue-600 hover:underline">
+                        <span>{{ req.message|truncatechars:50 }}</span>
                         <p class="text-sm text-gray-500 "><p class="font-bold px-2 py-1 text-sm rounded-full 
                         {% if req.status == 'pending' %} 
                             bg-yellow-300 text-yellow-700 
@@ -71,7 +75,7 @@
                             bg-red-300 text-red-800 
                         {% endif %}">
                         {{ req.status|title }}</p>
-                    </span>
+                        </a>
                     <p class="text-sm text-gray-500">Sent: {{ req.created_at|date:"M d, Y H:i" }}</p>
                 </li>
                 {% empty %}
@@ -88,7 +92,10 @@
             <ul class="divide-y divide-gray-300">
                 {% for decision in recent_decisions %}
                 <li class="py-2">
-                    <p class="font-medium text-gray-800">{{ decision.case.title }}</p>
+                    <a href="{% url 'cases:case_details' decision.case.uuid %}#court-decisions" 
+                        class="font-medium text-blue-600 hover:underline">
+                        {{ decision.case.title }}
+                    </a>
                     <p class="text-sm text-gray-500">{{ decision.outcome }} | {{ decision.decision_date|date:"M d, Y" }}</p>
                 </li>
                 {% empty %}

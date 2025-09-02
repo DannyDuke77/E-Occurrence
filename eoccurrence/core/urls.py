@@ -13,4 +13,6 @@ urlpatterns = [
     path('faq/', views.faq, name='faq'),
     path('help-and-support/', views.help_support, name='help_support'),
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('support/', views.support_requests_list, name='support_requests_list'),
+    path('support/<uuid:uuid>/', views.support_request_detail, name='support_request_detail'),
 ]

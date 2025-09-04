@@ -3,17 +3,6 @@
 {% block title %}Complainant - {{ complainant.first_name }} {{ complainant.last_name }}{% endblock %}
 
 {% block content %}
-<!-- Back button -->
-<div class="flex justify-between items-center mb-6 px-4">
-    <a href="{% url 'cases:case_details' case.uuid %}" onclick="window.history.back(); return false;" 
-       class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg shadow hover:bg-blue-700 transition">
-       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-        </svg>
-        Back to Case
-    </a>
-</div>
-
 <div class="max-w-6xl mx-auto p-6 mt-8 bg-white rounded-2xl shadow-lg">
     {% if messages %}
         <div class="mb-6 space-y-2">

@@ -3,16 +3,6 @@
 {% block title %}Case {{ case.case_number }} Details{% endblock %}
 
 {% block content %}
-    <div class="flex justify-between items-center mb-6 px-4">
-        <!-- Back to previous page -->
-        <a href="{% url 'cases:view_cases' %}" onclick="window.history.back(); return false;" 
-            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-            </svg>
-            Back
-        </a>
-    </div>
     {% if messages %}
         <div class="mb-6">
             {% for message in messages %}
@@ -63,7 +53,7 @@
                 <p class="leading-relaxed">{{ case.description }}</p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-5 gap-4">
+            <div class="grid grid-cols-2 :grid-cols-5 gap-4">
                 <div>
                     <p class="text-sm font-semibold text-gray-500">Incident Date</p>
                     <p>{{ case.incident_date|date:"F j, Y" }}</p>
@@ -164,11 +154,13 @@
                         {% for witness in case.witnesses.all %}
                             <li class="py-2 flex items-start space-x-2">
                                 <span class="text-gray-400 font-medium">{{ forloop.counter }}.</span>
-                                <a href="{% url 'cases:witness_page' case.uuid witness.uuid %}" 
-                                class="text-gray-800 hover:text-blue-600 hover:underline underline-offset-2 transition">
-                                {{ witness.name }}
-                                </a>
-                                <span class="text-gray-500 text-sm truncate">– {{ witness.statement|truncatechars:50 }}</span>
+                                <div class="flex flex-col">
+                                    <a href="{% url 'cases:witness_page' case.uuid witness.uuid %}" 
+                                    class="text-gray-800 hover:text-blue-600 hover:underline underline-offset-2 transition">
+                                    {{ witness.name }}
+                                    </a>
+                                    <span class="text-gray-500 text-sm line-clamp-1">– {{ witness.statement }}</span>
+                                </div>
                             </li>
                         {% empty %}
                             <li class="py-2 text-gray-500 italic">No witnesses added yet.</li>

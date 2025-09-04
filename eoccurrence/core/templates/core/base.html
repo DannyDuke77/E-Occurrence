@@ -18,7 +18,7 @@
     <!-- PWA meta tags -->
     {% progressive_web_app_meta %}
 
-    <title>{% block title %}{% endblock %} | E-Occurrence</title>
+    <title>{% block title %}{% endblock %} | E-Occurrence - Integrated Justice in Kenya</title>
     <style type="text/tailwindcss">
         body {
             font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
@@ -67,12 +67,12 @@
 
             {% if user.is_authenticated and user.profile.user_role == 'police' or user.profile.user_role == 'admin' %}
               <a href="{% url 'cases:complainant_entry' %}" class="block px-4 py-4 rounded hover:bg-gray-700">New Entry</a>
-              <a href="#" class="block px-4 py-4 rounded hover:bg-gray-700">Bail Decisions</a>
+              <a href="#" class="block px-4 py-4 rounded hover:bg-gray-700">Bail Decisions *</a>
             {% endif %}
 
             {% if user.is_authenticated and user.profile.user_role == 'court' or user.profile.user_role == 'admin' %}
-              <a href="#" class="block px-4 py-4 rounded hover:bg-gray-700">Court Updates</a>
-              <a href="#" class="block px-4 py-4 rounded hover:bg-gray-700">Reports</a>
+              <a href="#" class="block px-4 py-4 rounded hover:bg-gray-700">Court Updates *</a>
+              <a href="#" class="block px-4 py-4 rounded hover:bg-gray-700">Reports *</a>
             {% endif %}
 
             {% if user.is_authenticated and user.profile.user_role == 'admin' %}
@@ -107,17 +107,39 @@
 
       <div class="flex-1 md:ml-64 flex flex-col">
         <!-- Mobile navbar -->
-        <header class="bg-white shadow-md p-4 flex items-center md:hidden">
+        <header class="shadow-md p-4 flex items-center md:hidden fixed w-full z-30 backdrop-blur-lg">
           <button id="openSidebar" class="text-gray-700 mr-3 text-2xl font-bold">
             ☰
           </button>
-          <h1 class="text-lg font-semibold">E-Occurrence</h1>
+          <a href="/" class="text-lg font-semibold">E-Occurrence</a>
         </header>
 
         <!-- Main content -->
-        <main class="flex-1 overflow-y-auto p-4 mt-6 min-h-screen">
+        <main class="flex-1 overflow-y-auto p-4 mt-16 md:mt-6 min-h-screen">
+          <!-- Back button -->
+            <div class="hidden md:block mb-6 px-4">
+                <button onclick="window.history.back(); return false;"
+                class="flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg shadow hover:bg-blue-700 transition">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                    Back
+                </button>
+            </div>
+
+          <!-- Page-specific content -->
           {% block content %}
           {% endblock %}
+
+          <!-- Up button -->
+          <div class="fixed bottom-8 right-8">
+            <button onclick="window.scrollTo({ top: 0, behavior: 'smooth' });"
+              class="p-3 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+              </svg>
+            </button>
+          </div>
         </main>
 
         <!-- Footer -->

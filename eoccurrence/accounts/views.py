@@ -21,7 +21,7 @@ def create_user(request):
         if form.is_valid():
             user = form.save()
             messages.success(request, f"User {user.first_name + ' ' + user.last_name} created successfully. You can now log in.")
-            return redirect('login')
+            return redirect('accounts:login')
     else:
         form = CustomUserCreationForm()
 

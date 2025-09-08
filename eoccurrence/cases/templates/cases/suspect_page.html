@@ -89,7 +89,7 @@
             </div>
             <div>
                 <p class="text-sm text-gray-500">Arrest Location</p>
-                <p class="font-medium whitespace-pre-line">{{ suspect.arrest_location|default:"N/A" }}</p>
+                <p class="font-medium whitespace-pre-line">{{ suspect.arrest_location|default:"N/A" }} ({{ suspect.arrest_date|date:"M d, Y" }})</p>
             </div>
             <div>
                 <p class="text-sm text-gray-500">Charges</p>

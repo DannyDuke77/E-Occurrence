@@ -105,7 +105,7 @@
         </h2>
         <div class="space-y-2">
             <p class="text-sm text-gray-500">Recorded On: {{ complainant.created_at|date:"F j, Y"|default:"N/A" }}</p>
-            <p class="font-medium whitespace-pre-line">{{ case.description|default:"No statement recorded." }}</p>
+            <p class="font-medium whitespace-pre-line">{{ complainant.statement|default:"No statement recorded." }}</p>
         </div>
     </div>
 

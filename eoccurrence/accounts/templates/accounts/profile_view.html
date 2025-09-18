@@ -1,124 +1,193 @@
 {% extends "core/base.html" %}
 
-{% block title %}Profile - {{ profile.user.get_full_name }}{% endblock %}
+{% block title %}User Profile - {{ profile.user.get_full_name }}{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto p-6 bg-white rounded-2xl shadow-xl mt-8 border border-gray-200">
-    <!-- Header -->
-    <div class="flex items-center space-x-6 mb-6">
-        {% if profile.profile_picture %}
-            <img src="{{ profile.profile_picture.url }}" alt="Profile picture"
-                 class="w-32 h-32 rounded-full object-cover border-4 border-blue-500 shadow-md">
-        {% else %}
-            <div class="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center border-4 border-gray-300 shadow-md">
-                <span class="text-gray-500 text-lg font-semibold">No Image</span>
+<div class="max-w-5xl mx-auto px-4 py-8">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <!-- Profile Header with background -->
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-gray-200">
+            <div class="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
+                <!-- Profile Picture -->
+                <div class="relative">
+                    {% if profile.profile_picture %}
+                        <img src="{{ profile.profile_picture.url }}" alt="Profile picture"
+                             class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg">
+                    {% else %}
+                        <div class="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center border-4 border-white shadow-lg">
+                            <svg class="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- User Info -->
+                <div class="text-center md:text-left">
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800">
+                        {{ profile.user.get_full_name }}
+                    </h1>
+                    <p class="text-gray-600 mt-1">@{{ profile.user.username }}</p>
+                    
+                    <div class="flex flex-wrap items-center justify-center md:justify-start mt-3 space-x-4">
+                        <span class="inline-flex items-center text-sm text-gray-500">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            Joined {{ profile.date_joined|date:"F j, Y" }}
+                        </span>
+                        
+                        <span class="inline-flex items-center text-sm text-gray-500">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            {% if profile.last_activity %}
+                                <span class="last-login-time" data-timestamp="{{ profile.last_activity|date:'c' }}"></span>
+                            {% else %}
+                                Never logged in
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
             </div>
-        {% endif %}
-
-        <div>
-            <h1 class="text-3xl font-extrabold text-gray-800">
-                {{ profile.user.get_full_name }}
-            </h1>
-            <p class="text-gray-500">@{{ profile.user.username }}</p>
-            <p class="mt-1 text-sm text-gray-600">Joined: {{ profile.date_joined|date:"F j, Y" }}</p>
-        </div>
-    </div>
-
-    <!-- Info Section -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <div class="space-y-2">
-            <p><strong>Email:</strong> {{ profile.user.email }}</p>
-            <p><strong>Phone:</strong> {{ profile.phone_number|default:"Not provided" }}</p>
-            <p><strong>ID Number:</strong> {{ profile.id_number|default:"Not provided" }}</p>
-            <p><strong>Date of Birth:</strong> {{ profile.date_of_birth|date:"F j, Y"|default:"Not provided" }}</p>
-            <p><strong>Address:</strong> {{ profile.address|default:"Not provided" }}</p>
         </div>
 
-        <div class="space-y-2">
-            <p><strong>User Role:</strong> 
-                <span class="px-2 py-1 rounded-full text-white text-sm 
-                    {% if profile.user_role == 'admin' %}bg-red-600
-                    {% elif profile.user_role == 'police' %}bg-blue-600
-                    {% elif profile.user_role == 'court' %}bg-yellow-600
-                    {% else %}bg-gray-400{% endif %}">
-                    {{ profile.get_user_role_display }}
-                </span>
-            </p>
-            <p><strong>Department:</strong> {{ profile.department|default:"Not provided" }}</p>
-            <p><strong>Account Status:</strong> 
-                <span class="inline-block px-2 py-1 rounded-full text-sm font-semibold 
-                    {% if profile.is_active %}bg-green-500 text-white
-                    {% else %}bg-red-500 text-white{% endif %}">
-                    {% if profile.is_active %}Active{% else %}Inactive{% endif %}
-                </span>
-            </p>
-            <p><strong>Last Login:</strong> 
-                {% if profile.last_activity %}
-                    <span 
-                        class="last-login-time text-gray-600"
-                        data-timestamp="{{ profile.last_activity|date:'c' }}">
-                    </span>
-                {% else %}
-                    <span class="text-gray-600">Never</span>
+        <!-- Main Content -->
+        <div class="px-8 py-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Personal Information -->
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">Personal Information</h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm text-gray-500">Email Address</p>
+                            <p class="text-gray-800">{{ profile.user.email }}</p>
+                        </div>
+                        
+                        <div>
+                            <p class="text-sm text-gray-500">Phone Number</p>
+                            <p class="text-gray-800">{{ profile.phone_number|default:"Not provided" }}</p>
+                        </div>
+                        
+                        <div>
+                            <p class="text-sm text-gray-500">ID Number</p>
+                            <p class="text-gray-800">{{ profile.id_number|default:"Not provided" }}</p>
+                        </div>
+                        
+                        <div>
+                            <p class="text-sm text-gray-500">Date of Birth</p>
+                            <p class="text-gray-800">{{ profile.date_of_birth|date:"F j, Y"|default:"Not provided" }}</p>
+                        </div>
+                        
+                        <div>
+                            <p class="text-sm text-gray-500">Address</p>
+                            <p class="text-gray-800">{{ profile.address|default:"Not provided" }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Professional Information -->
+                <div>
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">Professional Information</h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-sm text-gray-500">User Role</p>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
+                                {% if profile.user_role == 'admin' %}bg-red-100 text-red-800
+                                {% elif profile.user_role == 'police' %}bg-blue-100 text-blue-800
+                                {% elif profile.user_role == 'court' %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ profile.get_user_role_display }}
+                            </span>
+                        </div>
+                        
+                        <div>
+                            <p class="text-sm text-gray-500">Department</p>
+                            <p class="text-gray-800">{{ profile.department|default:"Not provided" }}</p>
+                        </div>
+                        
+                        <div>
+                            <p class="text-sm text-gray-500">Account Status</p>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium 
+                                {% if profile.is_active %}bg-green-100 text-green-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {% if profile.is_active %}Active{% else %}Inactive{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="mt-8 pt-6 border-t border-gray-200 flex flex-wrap gap-4">
+                {% if profile.user_role == 'police' %}
+                    <a href="{% url 'cases:search_cases' %}?recorded_by={{ profile.user.username }}"
+                    class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition-colors flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                        View Cases Recorded
+                    </a>
                 {% endif %}
-
-
-            </p>
+                
+                {% if user.is_authenticated and user.profile.user_role == 'admin' %}
+                <a href="#"
+                   class="px-5 py-2.5 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-lg shadow-sm transition-colors flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                    Edit Profile
+                </a>
+                {% endif %}
+            </div>
         </div>
-    </div>
-
-    <!-- Action Button -->
-    <div class="flex justify-start mt-4">
-        <a href="{% url 'cases:search_cases' %}?recorded_by={{ profile.user.username }}"
-           class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md transition-transform transform hover:scale-105 hover:shadow-xl">
-            Cases Recorded
-        </a>
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
-    <script>
-        const ONLINE_THRESHOLD_MIN = 10; // minutes to consider user online
+<script>
+    const ONLINE_THRESHOLD_MIN = 5; // minutes to consider user online
 
-        function formatTimeAgo(date) {
-            const now = new Date();
-            const diffMs = now - date;
-            const diffMin = Math.floor(diffMs / 60000); // minutes
-            const diffHr = Math.floor(diffMin / 60);
+    function formatTimeAgo(date) {
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMin = Math.floor(diffMs / 60000); // minutes
+        const diffHr = Math.floor(diffMin / 60);
 
-            // ✅ Online if active in last 10 mins
-            if (diffMin < ONLINE_THRESHOLD_MIN) {
-                return "🟢 Online";
-            }
-
-            if (diffHr < 24) {
-                // Less than 24 hours → "X hrs Y mins ago"
-                const hrs = diffHr;
-                const mins = diffMin % 60;
-                if (hrs > 0) return `${hrs} hr${hrs > 1 ? 's' : ''} ${mins} min${mins !== 1 ? 's' : ''} ago`;
-                return `${mins} min${mins !== 1 ? 's' : ''} ago`;
-            } else if (diffHr < 48) {
-                // Yesterday → "Yesterday at HH:MM"
-                return `Yesterday at ${date.getHours().toString().padStart(2,"0")}:${date.getMinutes().toString().padStart(2,"0")}`;
-            } else {
-                // Older → show date
-                return date.toLocaleDateString() + ", " + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            }
+        // Online if active in last 5 mins
+        if (diffMin < ONLINE_THRESHOLD_MIN) {
+            return "Online";
         }
 
-        function updateLastLoginTimes() {
-            document.querySelectorAll(".last-login-time").forEach(el => {
-                const ts = el.dataset.timestamp;
-                if (!ts) return;
-                const date = new Date(ts);
-                el.textContent = formatTimeAgo(date);
-            });
+        if (diffHr < 24) {
+            // Less than 24 hours → "X hrs Y mins ago"
+            const hrs = diffHr;
+            const mins = diffMin % 60;
+            if (hrs > 0) return `${hrs} hr${hrs > 1 ? 's' : ''} ${mins} min${mins !== 1 ? 's' : ''} ago`;
+            return `${mins} min${mins !== 1 ? 's' : ''} ago`;
+        } else if (diffHr < 48) {
+            // Yesterday → "Yesterday at HH:MM"
+            return `Yesterday at ${date.getHours().toString().padStart(2,"0")}:${date.getMinutes().toString().padStart(2,"0")}`;
+        } else {
+            // Older → show date
+            return date.toLocaleDateString() + ", " + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         }
+    }
 
-        // Run immediately and refresh every 1 minute
-        updateLastLoginTimes();
-        setInterval(updateLastLoginTimes, 60000);
-    </script>
+    function updateLastLoginTimes() {
+        document.querySelectorAll(".last-login-time").forEach(el => {
+            const ts = el.dataset.timestamp;
+            if (!ts) return;
+            const date = new Date(ts);
+            el.textContent = formatTimeAgo(date);
+        });
+    }
 
+    // Run immediately and refresh every 1 minute
+    updateLastLoginTimes();
+    setInterval(updateLastLoginTimes, 60000);
+</script>
 {% endblock %}

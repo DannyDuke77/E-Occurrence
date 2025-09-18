@@ -3,42 +3,67 @@
 {% block title %}Case Entry{% endblock %}
 
 {% block content %}
-<div class="max-w-xl mx-auto bg-white p-6 shadow-lg rounded-lg">
-    <h2 class="text-2xl font-bold text-center mb-4 text-indigo-800">{{ form_title }}</h2>
-
-    <div class="mb-4 p-3 bg-gray-200 rounded">
-        <p class="mb-2"><strong>Complainant:</strong><span class="font-bold text-indigo-800"> {{ complainant.first_name }} {% if complainant.last_name %}{{ complainant.last_name }}{% endif %} </span></p>
-        <p class="mb-2"><strong>Phone:</strong><span class="font-bold text-indigo-800"> {{ complainant.phone_number }} </span></p>
-        <p class="mb-2"><strong>ID:</strong><span class="font-bold text-indigo-800"> {{ complainant.id_number }} </span></p>
+<div class="max-w-4xl mx-auto bg-white shadow-sm rounded-lg border border-gray-200">
+    <!-- Header -->
+    <div class="bg-gray-800 text-white px-6 py-4 rounded-t-lg">
+        <h2 class="text-xl font-semibold">{{ form_title }}</h2>
+        <p class="text-sm text-gray-300 mt-1">Complete the form below</p>
     </div>
 
-    <form method="post" class="space-y-4">
-
-        {% csrf_token %}
-
-        {% for field in form.visible_fields %}
-            <div class="mb-5">
-                <label class="block mb-1 text-sm text-gray-600">
-                    {{ field.label }}{% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
-                </label>
-                {{ field }}
-                {% if field.errors %}
-                    <div class="text-red-500 text-xs mt-1 flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
-                        </svg>
-                        <span class="ml-1">{{ field.errors }}</span>
-                    </div>
-                {% endif %}
-                {% if field.help_text %}
-                    <small class="text-gray-500 italic block mt-1">{{ field.help_text }}</small>
-                {% endif %}
+    <!-- Complainant Information -->
+    <div class="p-6 border-b border-gray-200 bg-gray-50">
+        <h3 class="text-sm font-medium text-gray-500 uppercase mb-3">Complainant Information</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <p class="text-xs text-gray-500">Name</p>
+                <p class="text-sm font-medium text-gray-900">{{ complainant.first_name }} {% if complainant.last_name %}{{ complainant.last_name }}{% endif %}</p>
             </div>
-        {% endfor %}
+            <div>
+                <p class="text-xs text-gray-500">Phone</p>
+                <p class="text-sm font-medium text-gray-900">{{ complainant.phone_number }}</p>
+            </div>
+            <div>
+                <p class="text-xs text-gray-500">ID Number</p>
+                <p class="text-sm font-medium text-gray-900">{{ complainant.id_number }}</p>
+            </div>
+        </div>
+    </div>
 
-        <button type="submit" class="w-full mt-4 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
-            Save Case
-        </button>
+    <!-- Form -->
+    <form method="post" class="p-6">
+        {% csrf_token %}
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% for field in form.visible_fields %}
+                <div class="mb-4">
+                    <label class="block mb-2 text-sm font-medium text-gray-700">
+                        {{ field.label }}{% if field.field.required %}<span class="text-red-500 ml-1">*</span>{% endif %}
+                    </label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="text-red-600 text-xs mt-2 flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <span>{{ field.errors }}</span>
+                        </div>
+                    {% endif %}
+                    {% if field.help_text %}
+                        <p class="text-gray-500 text-xs italic mt-2">{{ field.help_text }}</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Form Actions -->
+        <div class="pt-6 mt-6 border-t border-gray-200 flex justify-end space-x-3">
+            <a href="{% url 'cases:case_details' case.uuid %}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md border border-gray-300 hover:bg-gray-200 transition">
+                Cancel
+            </a>
+            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition">
+                Save Case
+            </button>
+        </div>
     </form>
 </div>
 {% endblock %}

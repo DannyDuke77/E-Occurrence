@@ -83,6 +83,10 @@ class Case(models.Model):
 
     status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='open')
     court_date = models.DateField(null=True, blank=True)
+
+    deleted = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(null=True, blank=True)
+    deleted_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='cases_deleted')
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

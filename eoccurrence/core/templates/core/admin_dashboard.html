@@ -118,6 +118,23 @@
                 {% endfor %}
             </ul>
         </div>
+
+        <!-- Recently deleted cases -->
+        <div class="bg-white rounded-xl shadow p-6">
+            <h2 class="text-lg font-semibold mb-4">Recently Deleted Cases</h2>
+            <ul class="divide-y divide-gray-300">
+                {% for case in recently_deleted_cases %}
+                <li class="py-2">
+                    <a href="{% url 'cases:case_details' case.uuid %}" class="font-medium text-blue-600 hover:underline">{{ case.title }}</a>
+                    <p class="text-sm text-gray-500">Deleted: {{ case.deleted_at|date:"M d, Y H:i" }}</p>
+                    <p class="text-sm text-gray-500">Deleted By: 
+                        <a href="{% url 'accounts:profile_view' case.deleted_by.profile.uuid %}" class="font-medium text-blue-600 hover:underline">{{ case.deleted_by.first_name }} {{ case.deleted_by.last_name }}</a> <span class="text-gray-400 text-sm block">@{{ case.deleted_by.username }}</span></p>
+                </li>
+                {% empty %}
+                <li class="py-2 text-gray-500">No recently deleted cases.</li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 </div>
 {% endblock %}

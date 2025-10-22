@@ -1,6 +1,5 @@
 <!doctype html>
 {% load pwa %}
-{% load static %}
 <html lang="en">
   <head>
     {% progressive_web_app_meta %}
@@ -8,7 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- TailwindCSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
     <!-- Favicon -->
@@ -64,12 +65,10 @@
 
           {% if user.is_authenticated and user.profile.user_role in 'police admin' %}
             <a href="{% url 'cases:complainant_entry' %}" class="block px-4 py-3 rounded hover:bg-gray-700">New Entry</a>
-            <a href="#" class="block px-4 py-3 rounded hover:bg-gray-700">Bail Decisions *</a>
           {% endif %}
 
           {% if user.is_authenticated and user.profile.user_role in 'court admin' %}
-            <a href="#" class="block px-4 py-3 rounded hover:bg-gray-700">Court Updates *</a>
-            <a href="#" class="block px-4 py-3 rounded hover:bg-gray-700">Reports *</a>
+            <a href="{% url 'cases:reports' %}" class="block px-4 py-3 rounded hover:bg-gray-700">Reports</a>
           {% endif %}
 
           {% if user.is_authenticated and user.profile.user_role == 'admin' %}
@@ -112,15 +111,17 @@
 
         <main class="flex-1 overflow-y-auto p-4 mt-16 md:mt-6 min-h-screen">
           <!-- Back button -->
-          <div class="hidden md:block mb-6 px-4">
-            <button onclick="window.history.back();" 
-              class="flex items-center px-4 py-2 bg-gray-800 text-white font-medium rounded-md shadow hover:bg-gray-700 transition">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-              </svg>
-              Back
-            </button>
-          </div>
+          {% if request.path != '/' %}
+            <div class="hidden md:block mb-6 px-4">
+              <button onclick="window.history.back();" 
+                class="flex items-center px-4 py-2 bg-gray-800 text-white font-medium rounded-md shadow hover:bg-gray-700 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back
+              </button>
+            </div>
+          {% endif %}
 
           {% block content %}{% endblock %}
 

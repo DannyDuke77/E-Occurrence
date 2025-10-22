@@ -21,4 +21,7 @@ urlpatterns = [
     path("suspects/", views.suspect_list, name="suspect_list"),
     path("witnesses/", views.witness_list, name="witness_list"),
     path("statistics/", views.statistics, name="statistics"),
+    path('case/<uuid:uuid>/pdf/', views.case_pdf_view, name='case_pdf'),
+    path('reports/', views.reports, name='reports'),
+    path('case/<uuid:case_uuid>/delete/', views.delete_case, name='delete_case'),
 ]

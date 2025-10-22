@@ -3,7 +3,6 @@ from django.contrib import admin
 from .models import Complainant, Case, Suspect, Witness, CourtDecision, SuspectCourtRuling
 # Register your models here.
 admin.site.register(Suspect)
-admin.site.register(Witness)
 admin.site.register(CourtDecision)
 admin.site.register(SuspectCourtRuling)
 
@@ -27,11 +26,10 @@ class WitnessInline(admin.TabularInline):
         self.parent_object = obj
         return super().get_formset(request, obj, **kwargs)
 
-admin.site.unregister(Witness)  # Unregister the default Witness model if you want to use the inline
 
 @admin.register(Case)
 class CaseAdmin(admin.ModelAdmin):
-    list_display = ("case_number", "uuid", "created_at")
+    list_display = ("case_number", "uuid", "created_at", "deleted")
     readonly_fields = ("uuid",)
     inlines = [WitnessInline]  # <-- add this line
 

@@ -7,15 +7,19 @@ from django.db.models import Q
 from django.db.models.functions import Concat
 from django.db.models import CharField, Value
 from django.core.paginator import Paginator
+from datetime import datetime
+from django.utils import timezone
 
-from .forms import ComplainantForm, CaseForm, WitnessForm,  SuspectForm, CourtDecisionForm, SuspectCourtRulingForm
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from weasyprint import HTML
+
+from .forms import ComplainantForm, CaseForm, WitnessForm,  SuspectForm, CourtDecisionForm, SuspectCourtRulingForm, CaseForm
 from .models import Complainant, Case, Suspect, Witness, CourtDecision, SuspectCourtRuling
 
 from accounts.decorators import login_required_with_message
 
 from accounts.models import Userprofile
-
-from .forms import CaseForm
 
 @login_required_with_message
 def complainant_entry(request):
@@ -59,7 +63,11 @@ def case_entry(request, uuid):
 def view_cases(request):
     # Get all cases
     # qs stands for QuerySet
-    qs = Case.objects.all()
+    if request.user.profile.user_role == 'admin':
+        qs = Case.objects.all().filter().order_by('-created_at')
+    else:
+        qs = Case.objects.all().filter(deleted=False).order_by('-created_at')
+
     total_results = qs.count()
 
     # Limit to 20 for performance
@@ -78,6 +86,10 @@ def view_cases(request):
 def edit_case(request, uuid):
     user = request.user
     case = get_object_or_404(Case, uuid=uuid)
+    if case.deleted:
+        messages.error(request, "This case has been deleted.")
+        return redirect('cases:view_cases')
+    
     form_title = f"Edit Case #{ case.case_number }"
     complainant = case.complainant
 
@@ -99,8 +111,11 @@ def edit_case(request, uuid):
 
 @login_required_with_message
 def case_details(request, uuid):
-
     case = get_object_or_404(Case, uuid=uuid)
+    if case.deleted and not request.user.profile.user_role == 'admin':
+        messages.error(request, f"Access denied. You do not have permission to view this case.")
+        return redirect('cases:view_cases')
+    
     witnesses = case.witnesses.all()
     suspects = case.suspects.all()
     court_decisions = case.court_decisions.all().order_by('decision_date')
@@ -118,7 +133,9 @@ def search_cases(request):
     status = request.GET.get('status', '')
     recorded_by = request.GET.get('recorded_by', '')
 
-    cases = Case.objects.all()
+    cases = Case.objects.all().filter(deleted=False)
+
+    result_name = "cases"
 
     if status:
         cases = cases.filter(status=status)
@@ -163,7 +180,9 @@ def witness_entry(request, uuid):
     if request.method == 'POST':
         form = WitnessForm(request.POST)
         if form.is_valid():
-            witness = form.save()
+            witness = form.save(commit=False)
+            witness.recorded_by = request.user
+            witness.save()
             # Link witness to the case
             case.witnesses.add(witness)
             case.save()
@@ -183,7 +202,9 @@ def suspect_entry(request, uuid):
     if request.method == 'POST':
         form = SuspectForm(request.POST)
         if form.is_valid():
-            suspect = form.save()
+            suspect = form.save(commit=False)
+            suspect.recorded_by = request.user
+            suspect.save()
             # Link suspect to the case
             case.suspects.add(suspect)
             case.save()
@@ -347,15 +368,15 @@ def witness_list(request):
         "page_obj": page_obj})
 
 def statistics(request):
-    cases = Case.objects.all()
+    cases = Case.objects.all().filter(deleted=False)
     suspects = Suspect.objects.all()
     witnesses = Witness.objects.all()
 
-    open_cases = Case.objects.filter(status="open")
-    closed_cases = Case.objects.filter(status="closed")
-    dismissed_cases = Case.objects.filter(status="dismissed")
-    under_investigation = Case.objects.filter(status="under_investigation")
-    in_court = Case.objects.all().filter(status="in_court")
+    open_cases = Case.objects.filter(status="open", deleted=False)
+    closed_cases = Case.objects.filter(status="closed", deleted=False)
+    dismissed_cases = Case.objects.filter(status="dismissed", deleted=False)
+    under_investigation = Case.objects.filter(status="under_investigation", deleted=False)
+    in_court = Case.objects.all().filter(status="in_court", deleted=False)
     
 
     return render(request, "cases/statistics.html", {
@@ -368,3 +389,52 @@ def statistics(request):
         "number_of_under_investigation": under_investigation.count(),
         "number_of_in_court": in_court.count()
     })
+
+def case_pdf_view(request, uuid):
+    case = get_object_or_404(Case, uuid=uuid)
+    html_content = render_to_string('cases/case_pdf.html', {'case': case})
+    pdf_file = HTML(string=html_content, base_url=request.build_absolute_uri()).write_pdf()
+    
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    response['Content-Disposition'] = f'filename=case_report_{case.case_number}_{timestamp}.pdf'
+    return response
+
+def reports(request):
+    search_query = request.GET.get('q', '')
+    if request.user.profile.user_role == 'admin':
+        cases = Case.objects.all().filter().order_by('-created_at')
+    else:
+        cases = Case.objects.all().filter(deleted=False).order_by('-created_at')
+
+    # Search by case number, title, or complainant name
+    if search_query:
+        cases = cases.filter(
+            case_number__icontains=search_query
+        ) | cases.filter(
+            title__icontains=search_query
+        ) | cases.filter(
+            complainant__first_name__icontains=search_query
+        ) | cases.filter(
+            complainant__last_name__icontains=search_query
+        )
+
+    paginator = Paginator(cases, 10)  # 10 per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'cases': page_obj,
+        'search_query': search_query,
+    }
+    return render(request, 'cases/reports.html', context)
+
+def delete_case(request, case_uuid):
+    case = get_object_or_404(Case, uuid=case_uuid)
+    case.deleted = True
+    case.deleted_at = timezone.now()
+    case.deleted_by = request.user
+    case.save()
+
+    messages.success(request, f"Case {case.case_number} deleted successfully.")
+    return redirect("cases:view_cases")

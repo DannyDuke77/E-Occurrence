@@ -68,6 +68,7 @@ def admin_dashboard(request):
     recent_decisions = CourtDecision.objects.order_by("-decision_date")[:5]
     recent_support = SupportRequest.objects.order_by("-created_at")[:5]
     recent_users = User.objects.order_by("-date_joined")[:5]
+    recently_deleted_cases = Case.objects.filter(deleted=True).order_by("-deleted_at")[:5]
 
     context = {
         # Quick stats
@@ -83,6 +84,7 @@ def admin_dashboard(request):
         "recent_decisions": recent_decisions,
         "recent_support": recent_support,
         "recent_users": recent_users,
+        "recently_deleted_cases": recently_deleted_cases
     }
 
     return render(request, "core/admin_dashboard.html", context)

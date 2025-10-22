@@ -1,0 +1,475 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Official Case Report - {{ case.case_number }}</title>
+    <link href="{% static 'css/tailwind.css' %}" rel="stylesheet">
+
+    <style>
+        /* PDF Specifics */
+        @page { 
+            size: A4; 
+            margin: 0cm;
+        }
+
+        /* Global Styles */
+        body {
+            font-family: 'Georgia', serif; /* Classic and professional serif font */
+            color: #1a202c; /* Dark text color */
+            background-color: #ffffff;
+            font-size: 10pt;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+
+        /* Overall Structure/Wrapper */
+        .page-content {
+            padding: 20px; /* Padding for the entire page content */
+            min-height: 29.7cm; /* A4 height */
+            box-sizing: border-box;
+        }
+
+        /* Page Breaks */
+        .page-break { 
+            page-break-before: always;
+            counter-increment: page 
+        }
+
+        /* HEADER */
+        .doc-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 5px solid #2b4c80; /* Primary deep blue line */
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .logo-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-logo {
+            width: 50px; /* Reduced logo size for a cleaner header */
+            height: 50px;
+            margin-right: 15px;
+        }
+
+        .header-title h1 {
+            font-family: 'Helvetica Neue', 'Arial', sans-serif;
+            font-size: 1.5rem; /* Slightly smaller, more refined */
+            font-weight: 700;
+            color: #2b4c80;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .header-title p {
+            font-size: 0.8rem;
+            color: #4a5568;
+            margin-top: 2px;
+            font-style: italic;
+        }
+
+        .report-meta {
+            text-align: right;
+            line-height: 1.4;
+        }
+
+        .report-meta p {
+            font-size: 0.9rem;
+            color: #4a5568;
+            margin: 0;
+        }
+
+        /* SECTION STYLES */
+        .section-container {
+            margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden; /* To contain border-radius on the title */
+        }
+
+        .section-title {
+            background-color: #3b5998; /* Deeper, more authoritative blue */
+            color: white;
+            font-family: 'Helvetica Neue', 'Arial', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            padding: 8px 15px;
+            letter-spacing: 0.05em;
+            margin: 0;
+        }
+
+        .section-content {
+            padding: 10px 15px;
+        }
+
+        /* TABLES - Using two-column layout for details */
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .detail-table tr:nth-child(odd) {
+            background-color: #f7f9fc; /* Very light subtle stripe */
+        }
+
+        .detail-table th, .detail-table td {
+            padding: 8px 10px;
+            border: 1px solid #e2e8f0;
+            vertical-align: top;
+            font-size: 0.95rem;
+        }
+
+        .detail-table th {
+            width: 25%; /* Fixed width for labels */
+            background-color: #edf2f7; /* Light grey/blue label background */
+            text-align: left;
+            color: #2b4c80;
+            font-weight: 600;
+            border-right: 1px solid #cdd2d8;
+        }
+
+        /* Description/Statement Text */
+        .statement-box {
+            background-color: #f7f9fc;
+            padding: 12px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            text-align: justify;
+            font-style: italic;
+            color: #374151;
+        }
+        
+        /* SIGNATURE AREA STYLES */
+        .signature-area {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 50px;
+            padding-top: 20px;
+            font-size: 10pt;
+            color: #1a202c;
+        }
+        
+        .signature-box {
+            width: 45%;
+            padding: 15px;
+            border: 1px solid #cdd2d8;
+            border-radius: 6px;
+            background-color: #f7f9fc;
+            line-height: 1.8;
+        }
+        
+        .signature-box > div:first-child {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #2b4c80;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #2b4c80;
+            padding-bottom: 5px;
+        }
+        
+        .signature-line {
+            height: 30px;
+            border-bottom: 1px dashed #000;
+            margin: 5px 0 2px 0;
+        }
+
+        /* FOOTER */
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 25px;
+            background-color: #2b4c80;
+            color: #e2e8f0;
+            font-size: 0.7rem;
+            text-align: center;
+            line-height: 25px; /* Vertically center text */
+            z-index: 1000;
+        }
+
+        /* WATERMARK */
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            opacity: 0.04; 
+            transform: translate(-50%, -50%) rotate(-45deg); 
+            font-family: 'Helvetica Neue', 'Arial', sans-serif;
+            font-size: 6rem;
+            font-weight: 900;
+            color: #2b4c80;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Disclaimer Box Styles */
+        .disclaimer-box {
+            margin: 30px 0;
+            padding: 15px;
+            border: 2px solid #c53030; /* Strong red/maroon border for warning/importance */
+            border-left: 8px solid #c53030; /* Bold left stripe */
+            background-color: #fefcfa; /* Very light off-white/cream background */
+            font-family: 'Helvetica Neue', 'Arial', sans-serif;
+            color: #4a5568; /* Darker gray text */
+            line-height: 1.5;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        .disclaimer-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #c53030; /* Red title to draw attention */
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding-bottom: 5px;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+        
+        .disclaimer-text {
+            font-size: 0.9rem; /* Slightly smaller for dense text */
+            font-style: normal; /* Removed italics for a formal warning tone */
+            text-align: justify;
+        }
+    </style>
+</head>
+<body>
+    <div class="watermark">OFFICIAL REPORT</div>
+
+    <div class="page-content">
+        <div class="doc-header">
+            <div class="logo-info">
+                <img src="{% static 'icons/icon-512x512.png' %}" alt="Kenya Police Logo" class="header-logo">
+                <div class="header-title">
+                    <h1>e-Occurrence System</h1>
+                    <p>Official Comprehensive Case Report</p>
+                </div>
+            </div>
+            <div class="report-meta">
+                <p><strong>Case No:</strong> <span style="color: #2b4c80; font-weight: bold;">{{ case.case_number }}</span></p>
+                <p><strong>Generated:</strong> {{ case.created_at|date:"F j, Y, g:i a" }}</p>
+            </div>
+        </div>
+
+        <div class="section-container">
+            <h2 class="section-title">Case Summary</h2>
+            <div class="section-content">
+                <table class="detail-table">
+                    <tr><th>Title/Subject</th><td>{{ case.title }}</td></tr>
+                    <tr><th>Type of Offence</th><td>{{ case.case_type }}</td></tr>
+                    <tr><th>Status</th><td><strong style="color: #c53030;">{{ case.get_status_display }}</strong></td></tr>
+                    <tr><th>Incident Date/Time</th><td>{{ case.incident_date }}</td></tr>
+                    <tr><th>Location of Incident</th><td>{{ case.location }}</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="section-container">
+            <h2 class="section-title">Complainant Information</h2>
+            <div class="section-content">
+                <table class="detail-table">
+                    <tr><th>Name</th><td>{{ case.complainant.first_name }} {{ case.complainant.last_name }}</td></tr>
+                    <tr><th>ID / Passport No.</th><td>{{ case.complainant.id_number }}</td></tr>
+                    <tr><th>Gender</th><td>{{ case.complainant.get_gender_display }}</td></tr>
+                    <tr><th>Contact (Phone/Email)</th><td>{{ case.complainant.phone_number }} / {{ case.complainant.email|default:"N/A" }}</td></tr>
+                    <tr><th>Address</th><td>{{ case.complainant.address|default:"N/A" }}</td></tr>
+                    <tr><th>County / Sub-County</th><td>{{ case.complainant.county }}, {{ case.complainant.sub_county }}</td></tr>
+                </table>
+                <p style="font-weight: 600; margin-top: 15px; margin-bottom: 5px; color: #2b4c80;">Complainant's Statement:</p>
+                <div class="statement-box">{{ case.complainant.statement }}</div>
+            </div>
+        </div>
+        
+    </div>
+
+    <footer>
+        e-Occurrence System | CONFIDENTIAL Police Record | Authorized Access Only | Page X of X
+    </footer>
+
+
+    {% if case.suspects.exists %}
+        {% for suspect in case.suspects.all %}
+        <div class="page-break">
+            <div class="page-content">
+                <div class="doc-header">
+                    <div class="logo-info">
+                        <img src="{% static 'icons/icon-512x512.png' %}" alt="Kenya Police Logo" class="header-logo">
+                        <div class="header-title">
+                            <h1>e-Occurrence System</h1>
+                            <p>Official Comprehensive Case Report</p>
+                        </div>
+                    </div>
+                    <div class="report-meta">
+                        <p><strong>Case No:</strong> <span style="color: #2b4c80; font-weight: bold;">{{ case.case_number }}</span></p>
+                        <p><strong>Generated:</strong> {{ case.created_at|date:"F j, Y, g:i a" }}</p>
+                    </div>
+                </div>
+
+                <div class="section-container">
+                    <h2 class="section-title">Suspect Information: {{ suspect.name }}</h2>
+                    <div class="section-content">
+                        <table class="detail-table">
+                            <tr><th>Full Name</th><td>{{ suspect.name }}</td></tr>
+                            <tr><th>ID / Passport No.</th><td>{{ suspect.national_id|default:"N/A" }}</td></tr>
+                            <tr><th>Gender</th><td>{{ suspect.get_gender_display }}</td></tr>
+                            <tr><th>Date of Birth</th><td>{{ suspect.date_of_birth|default:"N/A" }}</td></tr>
+                            <tr><th>Contact Info</th><td>{{ suspect.contact_info|default:"N/A" }}</td></tr>
+                            <tr><th>Address</th><td>{{ suspect.address|default:"N/A" }}</td></tr>
+                            <tr><th>Arrest Date & Location</th><td>{{ suspect.arrest_date|default:"N/A" }} at {{ suspect.arrest_location|default:"N/A" }}</td></tr>
+                            <tr><th>Charges Filed</th><td style="font-weight: bold; color: #c53030;">{{ suspect.charges|default:"N/A" }}</td></tr>
+                            <tr><th>Bail Status</th><td>{{ suspect.get_bail_status_display }}</td></tr>
+                            <tr><th>Recorded By Officer</th><td>{{ suspect.recorded_by.get_full_name }}</td></tr>
+                        </table>
+                        <p style="font-weight: 600; margin-top: 15px; margin-bottom: 5px; color: #2b4c80;">Suspect's Statement ({{ suspect.statement_date|default:"N/A" }}):</p>
+                        <div class="statement-box">{{ suspect.statement|default:"N/A" }}</div>
+                    </div>
+                </div>
+
+            </div>
+            <footer>
+                e-Occurrence System | CONFIDENTIAL Police Record | Authorized Access Only | Page X of X
+            </footer>
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if case.witnesses.exists %}
+        {% for witness in case.witnesses.all %}
+        <div class="page-break">
+            <div class="page-content">
+                <div class="doc-header">
+                    <div class="logo-info">
+                        <img src="{% static 'icons/icon-512x512.png' %}" alt="Kenya Police Logo" class="header-logo">
+                        <div class="header-title">
+                            <h1>e-Occurrence System</h1>
+                            <p>Official Comprehensive Case Report</p>
+                        </div>
+                    </div>
+                    <div class="report-meta">
+                        <p><strong>Case No:</strong> <span style="color: #2b4c80; font-weight: bold;">{{ case.case_number }}</span></p>
+                        <p><strong>Generated:</strong> {{ case.created_at|date:"F j, Y, g:i a" }}</p>
+                    </div>
+                </div>
+                
+                <div class="section-container">
+                    <h2 class="section-title">Witness Information: {{ witness.name }}</h2>
+                    <div class="section-content">
+                        <table class="detail-table">
+                            <tr><th>Full Name</th><td>{{ witness.name|default:"N/A" }}</td></tr>
+                            <tr><th>ID / Passport No.</th><td>{{ witness.national_id|default:"N/A" }}</td></tr>
+                            <tr><th>Gender</th><td>{{ witness.get_gender_display|default:"N/A" }}</td></tr>
+                            <tr><th>Date of Birth</th><td>{{ witness.date_of_birth|default:"N/A" }}</td></tr>
+                            <tr><th>Contact Info</th><td>{{ witness.contact_info|default:"N/A" }}</td></tr>
+                            <tr><th>Address</th><td>{{ witness.address|default:"N/A" }}</td></tr>
+                            <tr><th>Statement Date</th><td>{{ witness.date_of_statement|default:"N/A" }}</td></tr>
+                            <tr><th>Recorded By Officer</th><td>{{ witness.recorded_by.get_full_name }}</td></tr>
+                        </table>
+                        <p style="font-weight: 600; margin-top: 15px; margin-bottom: 5px; color: #2b4c80;">Witness Statement:</p>
+                        <div class="statement-box">{{ witness.statement }}</div>
+                    </div>
+                </div>
+            </div>
+            <footer>
+                e-Occurrence System | CONFIDENTIAL Police Record | Authorized Access Only | Page X of X
+            </footer>
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="page-break">
+        <div class="page-content">
+            <div class="doc-header">
+                <div class="logo-info">
+                    <img src="{% static 'icons/icon-512x512.png' %}" alt="Kenya Police Logo" class="header-logo">
+                    <div class="header-title">
+                        <h1>e-Occurrence System</h1>
+                        <p>Official Comprehensive Case Report</p>
+                    </div>
+                </div>
+                <div class="report-meta">
+                    <p><strong>Case No:</strong> <span style="color: #2b4c80; font-weight: bold;">{{ case.case_number }}</span></p>
+                    <p><strong>Generated:</strong> {{ case.created_at|date:"F j, Y, g:i a" }}</p>
+                </div>
+            </div>
+
+            <div class="section-container" style="min-height: 80vh;">
+                <h2 class="section-title">Incident Description and Investigative Summary</h2>
+                <div class="section-content">
+                    <p style="font-weight: 600; margin-bottom: 5px; color: #2b4c80;">Full Description:</p>
+                    <div class="statement-box" style="font-style: normal; color: #1a202c; height: auto;">{{ case.description }}</div>
+                    
+                    <h3 style="font-weight: 600; font-size: 1.05rem; margin-top: 30px; margin-bottom: 5px; color: #c53030;">Current Investigative Status Summary:</h3>
+                    <p style="font-style: italic;">[Placeholder: Insert Officer's brief summary of current investigation efforts, next steps, and evidence status here.]</p>
+                </div>
+            </div>
+            
+        </div>
+        <footer>
+            e-Occurrence System | CONFIDENTIAL Police Record | Authorized Access Only | Page X of X
+        </footer>
+    </div>
+    
+    <div class="page-break">
+        <div class="page-content">
+            <div class="doc-header">
+                <div class="logo-info">
+                    <img src="{% static 'icons/icon-512x512.png' %}" alt="Kenya Police Logo" class="header-logo">
+                    <div class="header-title">
+                        <h1>e-Occurrence System</h1>
+                        <p>Case Sign-Off and Approval</p>
+                    </div>
+                </div>
+                <div class="report-meta">
+                    <p><strong>Case No:</strong> <span style="color: #2b4c80; font-weight: bold;">{{ case.case_number }}</span></p>
+                    <p><strong>Date:</strong> {{ case.created_at|date:"F j, Y" }}</p>
+                </div>
+            </div>
+            
+            <h2 class="section-title" style="background-color: #c53030;">OFFICIAL AUTHORIZATION BLOCK</h2>
+
+            <div class="signature-area">
+                <div class="signature-box">
+                    <div>Prepared By:</div>
+                    <div class="signature-line"></div>
+                    <div>Officer Name & Signature</div>
+                    <div>Badge No: ___________________</div>
+                    <div>Date: ___________________</div>
+                </div>
+                
+                <div class="signature-box">
+                    <div>Approved By:</div>
+                    <div class="signature-line"></div>
+                    <div>Supervising Officer Name & Signature</div>
+                    <div>Rank: ___________________</div>
+                    <div>Date: ___________________</div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 80px; font-size: 0.9rem; color: #4a5568;">
+                <p>This report has been digitally generated and contains confidential information. Unauthorized disclosure is strictly prohibited.</p>
+                <div class="disclaimer-box">
+                    <p class="disclaimer-title">OFFICIAL INFORMATION DISCLAIMER</p>
+                    <p class="disclaimer-text">
+                        This document represents a <strong>snapshot</strong> of the case information and investigative status as of the <strong>Date Generated</strong> on the first page. It is compiled from data entered into the e-Occurrence System by various officers and may contain preliminary findings or details that are <strong>subject to change</strong>. For the most current and official status, including confirmed court dates, detailed evidence logs, or recent witness statements, a <strong>reference must be made to the active digital case file</strong> in the e-Occurrence System. The recipient is responsible for verifying the continued accuracy and completeness of the data before relying upon it for legal or administrative action.
+                    </p>
+                </div>
+                <p><strong>PLEASE ATTACH THIS LAST PAGE TO ALL CASE REPORTS.</strong></p>
+                <p><strong>REPORT ENDS HERE.</strong></p>
+            </div>
+
+        </div>
+        <footer>
+            e-Occurrence System | CONFIDENTIAL Police Record | Authorized Access Only | Page X of X
+        </footer>
+    </div>
+</body>
+</html>

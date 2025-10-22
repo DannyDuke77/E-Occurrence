@@ -1,0 +1,281 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto py-8 px-4 sm:px-6">
+  <!-- Header Section -->
+  <div class="mb-8">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+      <div class="mb-4 sm:mb-0">
+        <h1 class="text-3xl font-bold text-gray-900">Case Reports</h1>
+        <p class="mt-2 text-gray-600">Manage and generate official case documentation</p>
+      </div>
+      <form method="get" class="flex flex-col sm:flex-row gap-3">
+        <div class="relative flex-grow">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+            </svg>
+          </div>
+          <input
+            type="text"
+            name="q"
+            placeholder="Search by case number, title, or complainant"
+            value="{{ search_query }}"
+            class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+          >
+        </div>
+        <button
+          type="submit"
+          class="bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition font-medium"
+        >
+          Search
+        </button>
+        {% if search_query %}
+        <a
+          href="{% url 'cases:reports' %}"
+          class="bg-gray-200 text-gray-800 px-5 py-2.5 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition font-medium"
+        >
+          Clear
+        </a>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+          </div>
+        </div>
+        <div class="ml-4">
+          <p class="text-sm font-medium text-gray-600">Total Cases</p>
+          <p class="text-2xl font-bold text-gray-900">{{ cases.paginator.count }}</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+        </div>
+        <div class="ml-4">
+          <p class="text-sm font-medium text-gray-600">Open Cases</p>
+          <p class="text-2xl font-bold text-gray-900">
+            {% with open_cases=cases|dictsortreversed:"status" %}
+              {{ open_cases|length }}
+            {% endwith %}
+          </p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+      <div class="flex items-center">
+        <div class="flex-shrink-0">
+          <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+          </div>
+        </div>
+        <div class="ml-4">
+          <p class="text-sm font-medium text-gray-600">This Month</p>
+          <p class="text-2xl font-bold text-gray-900">
+            {% with this_month=cases|dictsortreversed:"created_at" %}
+              {{ this_month|length }}
+            {% endwith %}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table Section -->
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+      <h2 class="text-lg font-semibold text-gray-900">Case Records</h2>
+    </div>
+    
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Case Details</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Complainant</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+            {% if request.user.profile.user_role == 'admin' %}<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deleted</th>{% endif %}
+            <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          {% for case in cases %}
+          <tr class="hover:bg-gray-50 transition-colors duration-150">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex flex-col">
+                <span class="text-sm font-medium text-gray-900">{{ case.case_number }}</span>
+                <span class="text-sm text-gray-500 mt-1">{{ case.title }}</span>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-gray-900">{{ case.complainant.first_name }} {{ case.complainant.last_name }}</div>
+              <div class="text-sm text-gray-500">{{ case.complainant.id_number }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                {% if case.status == 'open' %}
+                  bg-green-100 text-green-800
+                {% elif case.status == 'closed' %}
+                  bg-gray-100 text-gray-800
+                {% else %}
+                  bg-yellow-100 text-yellow-800
+                {% endif %}
+              ">
+                {% if case.status == 'open' %}
+                  <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-green-400" fill="currentColor" viewBox="0 0 8 8">
+                    <circle cx="4" cy="4" r="3" />
+                  </svg>
+                {% elif case.status == 'closed' %}
+                  <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-gray-400" fill="currentColor" viewBox="0 0 8 8">
+                    <circle cx="4" cy="4" r="3" />
+                  </svg>
+                {% else %}
+                  <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-yellow-400" fill="currentColor" viewBox="0 0 8 8">
+                    <circle cx="4" cy="4" r="3" />
+                  </svg>
+                {% endif %}
+                {{ case.status|title }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {{ case.created_at|date:"M j, Y" }}
+            </td>
+            {% if request.user.profile.user_role == 'admin' %}
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {% if case.deleted %}
+                  Yes<br>
+                  <span class="text-xs text-red-600">by <a href="{% url 'accounts:profile_view' case.deleted_by.profile.uuid %}" class="font-medium text-red-600 hover:underline">{{ case.deleted_by.get_full_name }}</a> on {{ case.deleted_at|date:"M j, Y" }}</span>
+                {% else %}
+                  No
+                {% endif %}
+              </td>
+            {% endif %}
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <div class="flex justify-end space-x-2">
+                <a
+                  href="{% url 'cases:case_pdf' case.uuid %}" 
+                  target="_blank"
+                  class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition"
+                >
+                  <svg class="-ml-0.5 mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
+                  Generate PDF
+                </a>
+                <a
+                  href="#"
+                  class="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition"
+                >
+                  <svg class="-ml-0.5 mr-1.5 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                  View
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="px-6 py-12 text-center">
+              <div class="flex flex-col items-center justify-center">
+                <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <h3 class="text-lg font-medium text-gray-900 mb-1">No cases found</h3>
+                <p class="text-gray-500 max-w-md">
+                  {% if search_query %}
+                    No cases match your search criteria. Try adjusting your search terms.
+                  {% else %}
+                    There are no case records in the system yet.
+                  {% endif %}
+                </p>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if cases.has_other_pages %}
+    <div class="bg-white px-6 py-4 border-t border-gray-200">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div class="text-sm text-gray-700 mb-4 sm:mb-0">
+          Showing <span class="font-medium">{{ cases.start_index }}</span> to <span class="font-medium">{{ cases.end_index }}</span> of <span class="font-medium">{{ cases.paginator.count }}</span> results
+        </div>
+        <div class="flex items-center space-x-1">
+          {% if cases.has_previous %}
+          <a href="?q={{ search_query }}&page={{ cases.previous_page_number }}" class="relative inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition">
+            Previous
+          </a>
+          {% endif %}
+          
+          {% for num in cases.paginator.page_range %}
+            {% if num == cases.number %}
+              <span class="relative inline-flex items-center px-4 py-2 border border-blue-500 text-sm font-medium rounded-md text-white bg-blue-600">
+                {{ num }}
+              </span>
+            {% elif num > cases.number|add:'-3' and num < cases.number|add:'3' %}
+              <a href="?q={{ search_query }}&page={{ num }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition">
+                {{ num }}
+              </a>
+            {% endif %}
+          {% endfor %}
+          
+          {% if cases.has_next %}
+          <a href="?q={{ search_query }}&page={{ cases.next_page_number }}" class="relative inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition">
+            Next
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<style>
+  /* Custom scrollbar for table */
+  .overflow-x-auto::-webkit-scrollbar {
+    height: 8px;
+  }
+  
+  .overflow-x-auto::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+  }
+  
+  .overflow-x-auto::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+  }
+  
+  .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+</style>
+{% endblock %}

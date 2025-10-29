@@ -27,89 +27,142 @@
   </head>
   <body class="bg-gray-100">
     <div class="flex">
-      <!-- Sidebar -->
-      <aside id="sidebar"
-        class="w-80 md:w-64 bg-gray-800 text-white h-screen fixed flex flex-col p-4 overflow-y-auto z-50 border-r border-gray-700
-               transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+      {% if request.user.is_authenticated %}
+        <!-- Sidebar -->
+        <aside id="sidebar"
+          class="w-80 md:w-64 bg-gray-800 text-white h-screen fixed flex flex-col p-4 overflow-y-auto z-50 border-r border-gray-700
+                transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
 
-        <!-- Logo & Close button -->
-        <div class="flex justify-between items-center border-b border-gray-700 pb-2">
-          <a href="/" class="flex items-center space-x-2 text-2xl font-bold text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-              <path d="M11.47 3.84a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.06l-8.69-8.69a2.25 2.25 0 0 0-3.18 0l-8.69 8.69a.75.75 0 1 0 1.06 1.06l8.69-8.69Z" />
-              <path d="m12 5.43 8.16 8.16c.03.03.06.06.09.09v6.2c0 1.03-.84 1.87-1.87 1.87H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.63a1.87 1.87 0 0 1-1.87-1.87v-6.2c.03-.03.06-.06.09-.09L12 5.43Z" />
-            </svg>
-            <span>e-Occurrence</span>
-          </a>
+          <!-- Logo & Close button -->
+          <div class="flex justify-between items-center border-b border-gray-700 pb-2">
+            <a href="/" class="flex items-center space-x-2 text-2xl font-bold text-white">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                <path d="M11.47 3.84a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.06l-8.69-8.69a2.25 2.25 0 0 0-3.18 0l-8.69 8.69a.75.75 0 1 0 1.06 1.06l8.69-8.69Z" />
+                <path d="m12 5.43 8.16 8.16c.03.03.06.06.09.09v6.2c0 1.03-.84 1.87-1.87 1.87H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.63a1.87 1.87 0 0 1-1.87-1.87v-6.2c.03-.03.06-.06.09-.09L12 5.43Z" />
+              </svg>
+              <span>e-Occurrence</span>
+            </a>
 
-          <button id="closeSidebar" class="md:hidden text-gray-400 hover:text-white" aria-label="Close sidebar">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-              fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round"
-              class="icon icon-tabler icon-tabler-layout-sidebar-right-expand">
-              <path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6z" />
-              <path d="M15 4v16M10 10l-2 2l2 2" />
-            </svg>
-          </button>
-        </div>
+            <button id="closeSidebar" class="md:hidden text-gray-400 hover:text-white" aria-label="Close sidebar">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"
+                class="icon icon-tabler icon-tabler-layout-sidebar-right-expand">
+                <path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6z" />
+                <path d="M15 4v16M10 10l-2 2l2 2" />
+              </svg>
+            </button>
+          </div>
 
-        <!-- Navigation -->
-        <nav class="mt-4 divide-y divide-gray-700">
-          <a href="/" class="block px-4 py-3 rounded hover:bg-gray-700">Home</a>
-          <a href="{% url 'core:dashboard' %}" class="block px-4 py-3 rounded hover:bg-gray-700">Dashboard</a>
-          <a href="{% url 'cases:view_cases' %}" class="block px-4 py-3 rounded hover:bg-gray-700">View & Search Cases</a>
+          <!-- Navigation -->
+          <nav class="mt-4 divide-y divide-gray-700">
+            <a href="/" class="block px-4 py-3 rounded hover:bg-gray-700">Home</a>
+            <a href="{% url 'core:dashboard' %}" class="block px-4 py-3 rounded hover:bg-gray-700">Dashboard</a>
+            <a href="{% url 'cases:view_cases' %}" class="block px-4 py-3 rounded hover:bg-gray-700">View & Search Cases</a>
 
-          {% if user.is_authenticated %}
             <a href="{% url 'accounts:profile_view' user.profile.uuid %}" class="block px-4 py-3 rounded hover:bg-gray-700">Profile</a>
-          {% endif %}
 
-          {% if user.is_authenticated and user.profile.user_role in 'police admin' %}
-            <a href="{% url 'cases:complainant_entry' %}" class="block px-4 py-3 rounded hover:bg-gray-700">New Entry</a>
-          {% endif %}
+            {% if user.is_authenticated and user.profile.user_role in 'police admin' %}
+              <a href="{% url 'cases:complainant_entry' %}" class="block px-4 py-3 rounded hover:bg-gray-700">New Entry</a>
+            {% endif %}
 
-          {% if user.is_authenticated and user.profile.user_role in 'court admin' %}
-            <a href="{% url 'cases:reports' %}" class="block px-4 py-3 rounded hover:bg-gray-700">Reports</a>
-          {% endif %}
+            {% if user.is_authenticated and user.profile.user_role in 'court admin' %}
+              <a href="{% url 'cases:reports' %}" class="block px-4 py-3 rounded hover:bg-gray-700">Reports</a>
+            {% endif %}
 
-          {% if user.is_authenticated and user.profile.user_role == 'admin' %}
-            <a href="{% url 'core:admin_dashboard' %}" class="block px-4 py-3 rounded hover:bg-gray-700">Admin Dashboard</a>
-            <a href="{% url 'accounts:create_user' %}" class="block px-4 py-3 rounded hover:bg-gray-700">Add User</a>
-          {% endif %}
+            {% if user.is_authenticated and user.profile.user_role == 'admin' %}
+              <a href="{% url 'core:admin_dashboard' %}" class="block px-4 py-3 rounded hover:bg-gray-700">Admin Dashboard</a>
+              <a href="{% url 'accounts:create_user' %}" class="block px-4 py-3 rounded hover:bg-gray-700">Add User</a>
+            {% endif %}
 
-          <a href="{% url 'core:help_support' %}" class="block px-4 py-3 rounded hover:bg-gray-700">Help & Support</a>
+            <a href="{% url 'core:help_support' %}" class="block px-4 py-3 rounded hover:bg-gray-700">Help & Support</a>
+          </nav>
+
+          <!-- User info & logout -->
+          <div class="mt-auto border-t border-gray-700 pt-4">
+            {% if user.is_authenticated %}
+              <p class="text-sm mb-2 text-gray-300">Logged in as:
+                <span class="font-bold text-white">{% firstof user.get_full_name user.username %}</span>
+              </p>
+              <p class="text-sm mb-4 text-gray-300">Role:
+                <span class="font-bold text-white">{{ user.profile.user_role }}</span>
+              </p>
+              <a href="{% url 'accounts:logout' %}"
+                class="block text-center px-4 py-2 bg-red-600 rounded hover:bg-red-700">Logout</a>
+            {% else %}
+              <p class="text-sm mb-2 text-gray-400">You are not logged in.</p>
+              <a href="{% url 'accounts:login' %}"
+                class="block text-center px-4 py-2 bg-blue-600 rounded hover:bg-blue-700">Login</a>
+            {% endif %}
+          </div>
+        </aside>
+
+        <!-- Overlay for mobile -->
+        <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
+      {% else %}
+        <!-- Top Navbar for non-authenticated users -->
+        <nav class="bg-gray-800 text-white shadow-md fixed w-full z-50">
+          <div class="max-w-8xl mx-auto px-4 flex justify-between items-center">
+            <a href="/" class="flex items-center space-x-2 font-semibold text-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M11.47 3.84a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.06l-8.69-8.69a2.25 2.25 0 0 0-3.18 0l-8.69 8.69a.75.75 0 1 0 1.06 1.06l8.69-8.69Z" />
+                <path d="m12 5.43 8.16 8.16c.03.03.06.06.09.09v6.2c0 1.03-.84 1.87-1.87 1.87H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.63a1.87 1.87 0 0 1-1.87-1.87v-6.2c.03-.03.06-.06.09-.09L12 5.43Z" />
+              </svg>
+              <span>e-Occurrence</span>
+            </a>
+            <!-- Hamburger menu for mobile -->
+             <div id="hamburger" class="md:hidden cursor-pointer">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+            </div>
+            <!-- Nav for desktop -->
+            <div class="hidden md:flex space-x-6 text-white z-40">
+              <a href="{% url 'core:dashboard' %}" class="hover:text-gray-300 bg-red-600 py-4">Dashboard</a>
+              <a href="{% url 'cases:view_cases' %}" class="hover:text-gray-300">Search Case</a>
+              <a href="{% url 'core:help_support' %}" class="hover:text-gray-300">Help & Support</a>
+              <a href="{% url 'accounts:login' %}" class="hover:text-blue-400">Login</a>
+            </div>
+          </div>
         </nav>
 
-        <!-- User info & logout -->
-        <div class="mt-auto border-t border-gray-700 pt-4">
-          {% if user.is_authenticated %}
-            <p class="text-sm mb-2 text-gray-300">Logged in as:
-              <span class="font-bold text-white">{% firstof user.get_full_name user.username %}</span>
-            </p>
-            <p class="text-sm mb-4 text-gray-300">Role:
-              <span class="font-bold text-white">{{ user.profile.user_role }}</span>
-            </p>
-            <a href="{% url 'accounts:logout' %}"
-               class="block text-center px-4 py-2 bg-red-600 rounded hover:bg-red-700">Logout</a>
-          {% else %}
-            <p class="text-sm mb-2 text-gray-400">You are not logged in.</p>
-            <a href="{% url 'accounts:login' %}"
-               class="block text-center px-4 py-2 bg-blue-600 rounded hover:bg-blue-700">Login</a>
-          {% endif %}
-        </div>
-      </aside>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu"
+          class="hidden fixed top-16 right-4 w-60 bg-gray-800 text-white shadow-2xl rounded-xl z-50 overflow-hidden border border-gray-700 transition-all duration-300 ease-in-out">
 
-      <!-- Overlay for mobile -->
-      <div id="overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
+          <nav class="flex flex-col divide-y divide-gray-700">
+            <a href="{% url 'core:dashboard' %}"
+              class="px-5 py-3 text-sm hover:bg-gray-700 hover:text-white transition-colors">
+              Dashboard
+            </a>
+
+            <a href="{% url 'cases:view_cases' %}"
+              class="px-5 py-3 text-sm hover:bg-gray-700 hover:text-white transition-colors">
+              Search Case
+            </a>
+
+            <a href="{% url 'core:help_support' %}"
+              class="px-5 py-3 text-sm hover:bg-gray-700 hover:text-white transition-colors">
+              Help & Support
+            </a>
+
+            <a href="{% url 'accounts:login' %}"
+              class="px-5 py-3 text-sm text-blue-400 hover:bg-gray-700 hover:text-blue-300 transition-colors">
+              Login
+            </a>
+          </nav>
+        </div>
+      {% endif %}
 
       <!-- Main content -->
-      <div class="flex-1 md:ml-64 flex flex-col">
+      <div class="flex-1 {% if request.user.is_authenticated %}md:ml-64{% endif %} flex flex-col">
         <!-- Mobile navbar -->
         <header class="shadow-md p-4 flex items-center md:hidden fixed w-full z-30 bg-white/80 backdrop-blur">
           <button id="openSidebar" class="text-gray-700 mr-3 text-2xl font-bold" aria-label="Open sidebar">☰</button>
           <a href="/" class="text-lg font-semibold">E-Occurrence</a>
         </header>
 
-        <main class="flex-1 overflow-y-auto p-4 mt-16 md:mt-6 min-h-screen">
+        <main class="flex-1 overflow-y-auto p-4 mt-16 md:mt-6 min-h-screen {% if not request.user.is_authenticated %}mt-24 md:mt-16{% endif %}">
           <!-- Back button -->
           {% if request.path != '/' %}
             <div class="hidden md:block mb-6 px-4">
@@ -126,10 +179,10 @@
           {% block content %}{% endblock %}
 
           <!-- Up button -->
-          <div class="fixed bottom-8 right-8">
-            <button onclick="window.scrollTo({ top: 0, behavior: 'smooth' });"
+          <div id="up-button" class="fixed bottom-8 right-8">
+            <button
               class="p-3 bg-gray-800 text-white rounded-full shadow-lg border hover:bg-blue-700 transition"
-              aria-label="Scroll to top">
+              aria-label="Scroll to top" title="Scroll to top">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
               </svg>
@@ -185,6 +238,13 @@
       const closeSidebar = document.getElementById('closeSidebar');
       const overlay = document.getElementById('overlay');
 
+      const hamburger = document.getElementById('hamburger');
+      const mobileMenu = document.getElementById('mobile-menu');
+
+      hamburger?.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+      });
+
       openSidebar?.addEventListener('click', () => {
         sidebar.classList.remove('-translate-x-full');
         overlay.classList.remove('hidden');
@@ -198,6 +258,24 @@
       overlay?.addEventListener('click', () => {
         sidebar.classList.add('-translate-x-full');
         overlay.classList.add('hidden');
+      });
+
+
+      // Hide the up button initially and show on scroll
+      const upButton = document.getElementById('up-button');
+      
+      upButton.style.display = 'none';
+
+      window.addEventListener('scroll', () => {
+        if (window.scrollY > 100) {
+          upButton.style.display = 'block';
+        } else {
+          upButton.style.display = 'none';
+        }
+      });
+
+      upButton?.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       });
     </script>
     {% endblock %}

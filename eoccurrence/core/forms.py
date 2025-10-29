@@ -18,8 +18,17 @@ class SupportRequestForm(forms.ModelForm):
             }),
             'message': forms.Textarea(attrs={
                 'placeholder': 'Enter your message. Maximum 1000 characters (Required)',
-                'class': INPUT_CLASSES + ' resize-none',
+                'class': INPUT_CLASSES,
                 'rows': 6,
-                'maxlength': 1000
+                'maxlength': 1000,
+                'style': 'resize: none'
             }),
         }
+    def clean_message(self):
+        message = self.cleaned_data.get('message')
+        if not message:
+            raise forms.ValidationError("This field is required.")
+        if len(message) > 1000:
+            raise forms.ValidationError("Message cannot exceed 1000 characters.")
+        
+        return message

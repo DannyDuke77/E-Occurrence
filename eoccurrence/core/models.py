@@ -21,7 +21,6 @@ class SupportRequest(models.Model):
     def __str__(self):
         return f"Support request from {self.name} ({self.email})"
     
-    # Set name = "Anonymous" if not provided
     def save(self, *args, **kwargs):
         if not self.name:
             self.name = "Anonymous"

@@ -22,7 +22,7 @@
      </div>
 
 <!-- Overview Cards -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+<div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-12">
     <!-- Cases Card -->
     <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
         <div class="flex items-center justify-between mb-4">
@@ -66,7 +66,7 @@
 <!-- Cases by Status -->
 <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
     <h2 class="text-xl font-semibold text-gray-900 mb-6">Cases by Status</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         
         <!-- Open Cases -->
         <a href="{% url 'cases:search_cases' %}?status=open" 

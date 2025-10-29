@@ -61,9 +61,7 @@ def case_entry(request, uuid):
     })
 
 def view_cases(request):
-    # Get all cases
-    # qs stands for QuerySet
-    if request.user.profile.user_role == 'admin':
+    if request.user.is_authenticated and request.user.profile.user_role == 'admin':
         qs = Case.objects.all().filter().order_by('-created_at')
     else:
         qs = Case.objects.all().filter(deleted=False).order_by('-created_at')

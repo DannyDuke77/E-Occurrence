@@ -118,10 +118,10 @@
             </div>
             <!-- Nav for desktop -->
             <div class="hidden md:flex space-x-6 text-white z-40">
-              <a href="{% url 'core:dashboard' %}" class="hover:text-gray-300 bg-red-600 py-4">Dashboard</a>
-              <a href="{% url 'cases:view_cases' %}" class="hover:text-gray-300">Search Case</a>
-              <a href="{% url 'core:help_support' %}" class="hover:text-gray-300">Help & Support</a>
-              <a href="{% url 'accounts:login' %}" class="hover:text-blue-400">Login</a>
+              <a href="{% url 'core:dashboard' %}" class="hover:text-gray-300 py-4">Dashboard</a>
+              <a href="{% url 'cases:view_cases' %}" class="hover:text-gray-300 py-4">Search Case</a>
+              <a href="{% url 'core:help_support' %}" class="hover:text-gray-300 py-4">Help & Support</a>
+              <a href="{% url 'accounts:login' %}" class="hover:text-blue-400 py-4">Login</a>
             </div>
           </div>
         </nav>
@@ -155,7 +155,7 @@
       {% endif %}
 
       <!-- Main content -->
-      <div class="flex-1 {% if request.user.is_authenticated %}md:ml-64{% endif %} flex flex-col">
+      <div class="flex-1 mt-16 {% if request.user.is_authenticated %}md:ml-64 mt-8{% endif %} flex flex-col">
         <!-- Mobile navbar -->
         <header class="shadow-md p-4 flex items-center md:hidden fixed w-full z-30 bg-white/80 backdrop-blur">
           <button id="openSidebar" class="text-gray-700 mr-3 text-2xl font-bold" aria-label="Open sidebar">☰</button>

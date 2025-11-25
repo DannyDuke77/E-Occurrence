@@ -1,6 +1,6 @@
 {% extends "core/base.html" %}
 
-{% block title %}Create User{% endblock %}
+{% block title %}{% if is_edit %}Edit Profile{% else %}Create User{% endif %}{% endblock %}
 
 {% block content %}
 
@@ -9,96 +9,39 @@
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6 mr-2">
             <path d="M5.25 6.375a4.125 4.125 0 1 1 8.25 0 4.125 4.125 0 0 1-8.25 0ZM2.25 19.125a7.125 7.125 0 0 1 14.25 0v.003l-.001.119a.75.75 0 0 1-.363.63 13.067 13.067 0 0 1-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 0 1-.364-.63l-.001-.122ZM18.75 7.5a.75.75 0 0 0-1.5 0v2.25H15a.75.75 0 0 0 0 1.5h2.25v2.25a.75.75 0 0 0 1.5 0v-2.25H21a.75.75 0 0 0 0-1.5h-2.25V7.5Z" />
         </svg>
-        Create a New Account</h1>
+        {% if is_edit %}Edit Profile{% else %}Create a New Account{% endif %}
+    </h1>
 
     <form method="post" action=".">
         {% csrf_token %}
 
-        {% if form.non_field_errors %}
-            <div class="mb-4 p-4 bg-red-100 text-red-600 rounded-md">
-                {{ form.non_field_errors }}
-            </div>
-        {% endif %}
-
-        {% for field in form %}
-            {% if field.errors %}
-                <div class="mb-4 p-3 bg-red-50 text-red-600 rounded-md text-sm">
-                    {{ field.errors }}
+        {% for form_obj in forms %}
+            {% if form_obj.non_field_errors %}
+                <div class="mb-4 p-4 bg-red-100 text-red-600 rounded-md">
+                    {{ form_obj.non_field_errors }}
                 </div>
             {% endif %}
-        {% endfor %}
 
-        {% for field in form.visible_fields %}
-            <div class="mb-5">
-                <label class="block mb-1 text-sm text-gray-600">{{ field.label }}{% if field.field.required %}<span class="text-red-500"> *</span>{% endif %}</label>
-                
-
-                {% if field.name == 'password1' %}
-                    <div class="relative flex items-center">
-                        {{ field }}
-                        <button type="button" class="absolute right-3 text-gray-500 hover:text-gray-700" onclick="togglePassword('password1')">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5s8.577 3.007 9.964 7.183a1.012 1.012 0 0 1 0 .634C20.577 16.49 16.64 19.5 12 19.5S3.423 16.49 2.036 12.322Z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                            </svg>
-                        </button>
-                    </div>
-                    {% if field.help_text %}
-                        <small class="text-gray-500 italic block mt-1 mb-4">{{ field.help_text }}</small>
-                    {% endif %}
-            {% elif field.name == 'password2' %}
-                <div class="relative flex items-center">
-                    {{ field }}
-                    <button type="button" class="absolute right-3 text-gray-500 hover:text-gray-700" onclick="togglePassword('password2')">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5s8.577 3.007 9.964 7.183a1.012 1.012 0 0 1 0 .634C20.577 16.49 16.64 19.5 12 19.5S3.423 16.49 2.036 12.322Z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                    </svg>
-                    </button>
-                </div>
-                {% if field.help_text %}
-                    <small class="text-gray-500 italic block mt-1">{{ field.help_text }}</small>
-                {% endif %}
-            </div>
-            {% else %}
+            {% for field in form_obj.visible_fields %}
                 <div class="mb-5">
+                    <label class="block mb-1 text-sm text-gray-600">
+                        {{ field.label }}{% if field.field.required %}<span class="text-red-500"> *</span>{% endif %}
+                    </label>
                     {{ field }}
                     {% if field.help_text %}
                         <small class="text-gray-500 italic block mt-1">{{ field.help_text }}</small>
                     {% endif %}
+                    {% if field.errors %}
+                        <div class="text-red-600 text-sm mt-1">{{ field.errors }}</div>
+                    {% endif %}
                 </div>
-            {% endif %}
-            
+            {% endfor %}
         {% endfor %}
 
-        <p class="text-sm text-gray-600 mb-4">
-            Already have an account? 
-            <a href="{% url 'accounts:login' %}" class="text-teal-600 hover:underline">Log in here</a>.
-        </p>
-
-        <p class="text-xs text-gray-500 mb-6">
-            By signing up, you agree to our 
-            <a href="{% url 'core:terms_of_use' %}" class="text-teal-600 hover:underline">Terms of Use</a> and 
-            <a href="#" class="text-teal-600 hover:underline">Privacy Policy</a>.
-        </p>
-
         <button class="w-full py-3 bg-indigo-600 hover:bg-indigo-800 text-white font-semibold rounded-lg">
-            Create Account
+            {% if is_edit %}Update Profile{% else %}Create Account{% endif %}
         </button>
     </form>
 </div>
 
-{% endblock %}
-
-{% block scripts %}
-<script>
-    function togglePassword(fieldId) {
-        const input = document.getElementById(fieldId);
-        if (input.type === 'password') {
-            input.type = 'text';
-        } else {
-            input.type = 'password';
-        }
-    }
-</script>
 {% endblock %}

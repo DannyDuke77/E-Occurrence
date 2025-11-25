@@ -1,0 +1,61 @@
+{% extends "core/base.html" %}
+
+{% block title %}Court Ruling Details{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto p-6">
+
+  <div class="bg-white shadow-lg rounded-2xl border border-gray-200 p-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Court Ruling Details</h1>
+
+    <div class="space-y-4 text-gray-700 text-lg">
+
+      <p>
+        <span class="font-semibold text-gray-900">Case:</span>
+        <a href="{% url 'cases:case_details' decision.case.uuid %}#court-decisions-section"
+           class="text-blue-600 hover:underline">
+          {{ decision.case.case_number }}
+        </a>
+      </p>
+
+      <p>
+        <span class="font-semibold text-gray-900">Decision Type:</span>
+        <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-700">
+          {{ decision.get_decision_type_display }}
+        </span>
+      </p>
+
+      {% if decision.decision_text %}
+      <p>
+        <span class="font-semibold text-gray-900 block">Decision Text:</span>
+        <span class="whitespace-pre-line">{{ decision.decision_text }}</span>
+      </p>
+      {% endif %}
+
+      <p>
+        <span class="font-semibold text-gray-900">Recorded By:</span>
+        {{ decision.recorded_by.username|default:"System" }}
+      </p>
+
+      <p>
+        <span class="font-semibold text-gray-900">Recorded On:</span>
+        {{ decision.decision_date|date:"M d, Y H:i" }}
+      </p>
+
+      <p>
+        <span class="font-semibold text-gray-900">Last Updated:</span>
+        {{ decision.updated_at|date:"M d, Y H:i" }}
+      </p>
+
+    </div>
+
+    <div class="mt-8">
+      <a href="{% url 'cases:court_rulings_list' %}"
+         class="px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition font-medium">
+        ← Back to Rulings
+      </a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

@@ -58,7 +58,7 @@ class CustomUserCreationForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2', 'id_number', 'phone_number', 'address', 'user_role', 'department', 'date_of_birth', 'profile_picture']
+        fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2', 'id_number', 'phone_number', 'address', 'user_role', 'department', 'date_of_birth']
 
         help_texts = {
         'username': 'Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.',
@@ -115,10 +115,6 @@ class CustomUserCreationForm(UserCreationForm):
             'class': INPUT_CLASSES,
             'type': 'date'
         })
-        self.fields['profile_picture'].widget.attrs.update({
-            'class': INPUT_CLASSES,
-            'accept': 'image/*'
-        })
 
         self.fields['id_number'].help_text = 'Required. Your Police, Court or National ID number.'
         self.fields['phone_number'].help_text = 'Required. Your phone number.'
@@ -127,7 +123,6 @@ class CustomUserCreationForm(UserCreationForm):
         self.fields['user_role'].help_text = 'This field is automatically set to Student and only admins can change.'
         self.fields['department'].help_text = 'Required. Your department.'
         self.fields['date_of_birth'].help_text = 'Required. Your date of birth.'
-        self.fields['profile_picture'].help_text = 'Optional. Upload a profile picture.'
 
 
     def clean_username(self):
@@ -156,6 +151,29 @@ class CustomUserCreationForm(UserCreationForm):
                 address=self.cleaned_data.get('address'),
                 department=self.cleaned_data.get('department'),
                 date_of_birth=self.cleaned_data.get('date_of_birth'),
-                profile_picture=self.cleaned_data.get('profile_picture')
             )
         return user
+    
+class UserEditForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': INPUT_CLASSES}),
+            'email': forms.EmailInput(attrs={'class': INPUT_CLASSES}),
+            'first_name': forms.TextInput(attrs={'class': INPUT_CLASSES}),
+            'last_name': forms.TextInput(attrs={'class': INPUT_CLASSES}),
+        }
+
+class UserProfileEditForm(forms.ModelForm):
+    class Meta:
+        model = Userprofile
+        fields = ['id_number', 'phone_number', 'address', 'user_role', 'department', 'date_of_birth']
+        widgets = {
+            'id_number': forms.TextInput(attrs={'class': INPUT_CLASSES}),
+            'phone_number': forms.TextInput(attrs={'class': INPUT_CLASSES}),
+            'address': forms.Textarea(attrs={'rows': '4', 'cols': '40', 'style': 'resize: none', 'class': INPUT_CLASSES}),
+            'user_role': forms.Select(attrs={'class': INPUT_CLASSES}),
+            'department': forms.TextInput(attrs={'class': INPUT_CLASSES}),
+            'date_of_birth': forms.DateInput(attrs={'type': 'date', 'class': INPUT_CLASSES}),
+        }

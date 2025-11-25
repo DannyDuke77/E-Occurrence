@@ -11,7 +11,7 @@ from .decorators import login_required_with_message
 
 from .models import Userprofile
 
-from .forms import loginForm, CustomUserCreationForm
+from .forms import loginForm, CustomUserCreationForm, UserEditForm, UserProfileEditForm
 
 # Create your views here.
 @login_required_with_message
@@ -69,3 +69,26 @@ def profile_view(request, uuid):
         'user': user,
         'profile': profile,
     })
+
+def edit_profile(request, uuid):
+    profile = get_object_or_404(Userprofile, uuid=uuid)
+    user = profile.user
+
+    if request.method == 'POST':
+        user_form = UserEditForm(request.POST, instance=user)
+        profile_form = UserProfileEditForm(request.POST, request.FILES, instance=profile)
+
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            messages.success(request, "Profile updated successfully.")
+            return redirect('accounts:profile_view', uuid=profile.uuid)
+    else:
+        user_form = UserEditForm(instance=user)
+        profile_form = UserProfileEditForm(instance=profile)
+
+    context = {
+        'user_form': user_form,
+        'profile_form': profile_form,
+    }
+    return render(request, 'accounts/edit_profile.html', context)

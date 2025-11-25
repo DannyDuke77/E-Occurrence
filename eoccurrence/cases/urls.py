@@ -24,4 +24,6 @@ urlpatterns = [
     path('case/<uuid:uuid>/pdf/', views.case_pdf_view, name='case_pdf'),
     path('reports/', views.reports, name='reports'),
     path('case/<uuid:case_uuid>/delete/', views.delete_case, name='delete_case'),
+    path("court-rulings/", views.court_rulings_list, name="court_rulings_list"),
+    path("court-rulings/<uuid:uuid>/", views.court_ruling_detail, name="court_ruling_detail"),
 ]

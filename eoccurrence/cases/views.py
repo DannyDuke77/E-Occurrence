@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.db.models.functions import Concat
 from django.db.models import CharField, Value
 from django.core.paginator import Paginator
-from datetime import datetime
+import datetime
 from django.utils import timezone
 
 from django.http import HttpResponse
@@ -389,6 +389,7 @@ def statistics(request):
     })
 
 def case_pdf_view(request, uuid):
+    from datetime import datetime
     case = get_object_or_404(Case, uuid=uuid)
     html_content = render_to_string('cases/case_pdf.html', {'case': case})
     pdf_file = HTML(string=html_content, base_url=request.build_absolute_uri()).write_pdf()
@@ -436,3 +437,62 @@ def delete_case(request, case_uuid):
 
     messages.success(request, f"Case {case.case_number} deleted successfully.")
     return redirect("cases:view_cases")
+
+def court_rulings_list(request):
+    decisions = CourtDecision.objects.select_related("case", "recorded_by").all()
+
+    # Search query
+    query = request.GET.get("q")
+    if query:
+        decisions = decisions.filter(
+            Q(case__case_number__icontains=query)
+            | Q(decision_text__icontains=query)
+            | Q(decision_type__icontains=query)
+            | Q(recorded_by__username__icontains=query)
+        )
+
+    # Filter by decision type
+    filter_type = request.GET.get("type")
+    if filter_type:
+        decisions = decisions.filter(decision_type=filter_type)
+
+    # Filter by date range
+    start_date = request.GET.get("start_date")
+    end_date = request.GET.get("end_date")
+
+    if start_date:
+        try:
+            start_date_obj = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+            decisions = decisions.filter(decision_date__gte=start_date_obj)
+        except ValueError:
+            pass  # ignore invalid date
+
+    if end_date:
+        try:
+            end_date_obj = datetime.datetime.strptime(end_date, "%Y-%m-%d") + datetime.timedelta(days=1)
+            decisions = decisions.filter(decision_date__lt=end_date_obj)
+        except ValueError:
+            pass
+
+    # Pagination
+    paginator = Paginator(decisions, 12)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "page_obj": page_obj,
+        "query": query or "",
+        "filter_type": filter_type or "",
+        "start_date": start_date or "",
+        "end_date": end_date or "",
+    }
+    return render(request, "cases/court_rulings_list.html", context)
+
+
+def court_ruling_detail(request, uuid):
+    decision = get_object_or_404(CourtDecision, uuid=uuid)
+
+    context = {
+        "decision": decision
+    }
+    return render(request, "cases/court_ruling_detail.html", context)

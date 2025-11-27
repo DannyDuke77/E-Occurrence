@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: eoccurrence
+    runtime: python
+    plan: free
+
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+
+    startCommand: gunicorn eoccurrence.wsgi:application
+
+    postDeployCommand: python manage.py migrate
+
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: eoccurrence.settings
+
+      - key: SECRET_KEY
+        generateValue: true
+
+      - key: PYTHON_VERSION
+        value: 3.10
+      

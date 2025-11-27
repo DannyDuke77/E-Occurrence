@@ -99,7 +99,18 @@ WSGI_APPLICATION = 'eoccurrence.wsgi.application'
 DATABASES = {
     "default": dj_database_url.config(default=os.environ.get("DATABASE_URL"), conn_max_age=600)
 }
-
+'''
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'e_occurrence_db',
+        'USER': 'e_occurrence_user',
+        'PASSWORD': 'dany2004',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
+'''
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

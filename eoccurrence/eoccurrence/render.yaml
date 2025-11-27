@@ -22,3 +22,5 @@ services:
       - key: PYTHON_VERSION
         value: 3.10
       
+      - key: DATABASE_URL
+        value: postgresql://eoccurrence_db_user:T5zywbumTCRAfDf8CAXLevpwRJTr89U9@dpg-d4k90e8dl3ps73dfg22g-a/eoccurrence_db

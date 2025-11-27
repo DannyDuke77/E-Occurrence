@@ -161,7 +161,7 @@
       <!-- Main content -->
       <div class="flex-1 mt-16 {% if request.user.is_authenticated %}md:ml-64 mt-8{% endif %} flex flex-col">
         <!-- Mobile navbar -->
-        <header class="shadow-md p-4 {% if not request.user.is_authenticated %}hidden{% endif %} items-center fixed w-full z-30 bg-white/80 backdrop-blur">
+        <header class="shadow-md p-4 md:hidden flex top-0 {% if not request.user.is_authenticated %}hidden{% endif %} items-center fixed w-full z-30 bg-white/80 backdrop-blur">
           <button id="openSidebar" class="text-gray-700 mr-3 text-2xl font-bold" aria-label="Open sidebar">☰</button>
           <a href="/" class="text-lg font-semibold">E-Occurrence</a>
         </header>

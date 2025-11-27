@@ -97,7 +97,7 @@ WSGI_APPLICATION = 'eoccurrence.wsgi.application'
 
 DATABASES = {
     "default": dj_database_url.config(
-        default="postgres://e_occurrence_user:dany2004@localhost:5432/e_occurrence_db",
+        default="postgresql://eoccurrence_db_user:T5zywbumTCRAfDf8CAXLevpwRJTr89U9@dpg-d4k90e8dl3ps73dfg22g-a/eoccurrence_db",
         conn_max_age=600
     )
 }

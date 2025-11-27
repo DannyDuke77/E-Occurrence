@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import dj_database_url
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -96,10 +97,7 @@ WSGI_APPLICATION = 'eoccurrence.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    "default": dj_database_url.config(
-        default="postgresql://eoccurrence_db_user:T5zywbumTCRAfDf8CAXLevpwRJTr89U9@dpg-d4k90e8dl3ps73dfg22g-a/eoccurrence_db",
-        conn_max_age=600
-    )
+    "default": dj_database_url.config(default=os.environ.get("DATABASE_URL"), conn_max_age=600)
 }
 
 

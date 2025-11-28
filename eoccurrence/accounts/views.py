@@ -45,6 +45,10 @@ def login_view(request):
             else:
                 request.session.set_expiry(30 * 60)  # 30 minutes
 
+            next_url = request.POST.get('next') or request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
+
             return redirect('core:dashboard')
     else:
         form = loginForm()

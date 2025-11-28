@@ -365,6 +365,7 @@ def witness_list(request):
     return render(request, "cases/witness_list.html", {
         "page_obj": page_obj})
 
+@login_required_with_message
 def statistics(request):
     cases = Case.objects.all().filter(deleted=False)
     suspects = Suspect.objects.all()
@@ -388,6 +389,7 @@ def statistics(request):
         "number_of_in_court": in_court.count()
     })
 
+@login_required_with_message
 def case_pdf_view(request, uuid):
     from datetime import datetime
     case = get_object_or_404(Case, uuid=uuid)
@@ -399,6 +401,7 @@ def case_pdf_view(request, uuid):
     response['Content-Disposition'] = f'filename=case_report_{case.case_number}_{timestamp}.pdf'
     return response
 
+@login_required_with_message
 def reports(request):
     search_query = request.GET.get('q', '')
     if request.user.profile.user_role == 'admin':
@@ -428,6 +431,7 @@ def reports(request):
     }
     return render(request, 'cases/reports.html', context)
 
+@login_required_with_message
 def delete_case(request, case_uuid):
     case = get_object_or_404(Case, uuid=case_uuid)
     case.deleted = True
@@ -438,6 +442,7 @@ def delete_case(request, case_uuid):
     messages.success(request, f"Case {case.case_number} deleted successfully.")
     return redirect("cases:view_cases")
 
+@login_required_with_message
 def court_rulings_list(request):
     decisions = CourtDecision.objects.select_related("case", "recorded_by").all()
 
@@ -488,7 +493,7 @@ def court_rulings_list(request):
     }
     return render(request, "cases/court_rulings_list.html", context)
 
-
+@login_required_with_message
 def court_ruling_detail(request, uuid):
     decision = get_object_or_404(CourtDecision, uuid=uuid)
 

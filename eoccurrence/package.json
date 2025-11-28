@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx tailwindcss -i ./static/src/input.css -o ./static/css/output.css --watch",
-    "build": "npx tailwindcss -i ./static/src/input.css -o ./static/css/output.css --minify"
+    "tailwind": "npx tailwindcss -i ./static/src/input.css -o ./static/css/output.css --watch",
+    "build": "npx tailwindcss -i ./static/src/input.css -o ./static/css/output.css --minify",
+    "dev": "python manage.py runserver"
   },
   "keywords": [],
   "author": "",
